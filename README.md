@@ -10,8 +10,8 @@
 
 [licence]: https://img.shields.io/badge/License-GPLv3-blue.svg
 [licence-url]: https://www.gnu.org/licenses/gpl-3.0
-[version]: 
-[version-url]: 
+[version]: https://github.com/Mirante5/JsAgil/releases/
+[version-url]: https://github.com/Mirante5/JsAgil/releases/download/1.25/JsAgil_1.25.zip
 
 Aplicativo desenvolvido em JavaScript, projetado para otimizar o trabalho na plataforma Fala.br.
 
