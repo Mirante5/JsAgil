@@ -1,5 +1,5 @@
-<h1 align="center" style="line-height:0;">JsÁgil A Real-time Text Plugin</h1>
-<h2 align="center" >Created with TamperMonkey and JavaScript</h2>
+<h1 align="center" style="line-height:0;">JsÁgil</h1>
+<h2 align="center" >Created with <i>TamperMonkey</i> and <i>JavaScript</i></h2>
 
 <div align="center">
 
