@@ -30,7 +30,7 @@
             // Opções do dropdown
             const justificativas = [
                 { text: 'Selecione uma justificativa...', value: '' },
-                { text: 'Prorrogação', value: `Prezado(a) Senhor(a), \n\nInformamos que, em conformidade com o previsto no art. 17 da Portaria CGU nº 581/2021, informamos que a presente manifestação foi prorrogada, devido a necessidade da Unidade organizacional para a elaboração e emissão de resposta conclusiva. \n\nAtenciosamente, \n\nOuvidoria/MEC.` }
+                { text: '', value: `` }
             ];
 
             // Popula o dropdown
