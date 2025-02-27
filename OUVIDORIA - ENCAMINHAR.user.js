@@ -86,8 +86,8 @@
                 {
                     text: 'Encaminhamento em geral',
                     value: {
-                        destinatario: ``,
-                        solicitante: ` {OUVIDORIA} ${numeroManifestacao} `
+                        destinatario: `Prezado(a) Ouvidor(a), \n\nInformamos que esta Ouvidoria do Ministério da Educação recebeu a presente \n\ndemanda, que trata sobre tema relacionado à competência dessa instituição. \n\nDessa forma, encaminhamos a manifestação e encerramos o seu tratamento. Em caso de dúvida ou encaminhamento indevido, entrar em contato pelo e-mail \n\nouvidoria@mec.gov.br ou pelo telefone (61) 2022-2595. \n\nAgradecemos o acolhimento da demanda e colocamo-nos à disposição para outros esclarecimentos.\n\nAtenciosamente, \n\nOuvidoria do Ministério da Educação \n\nACESSE: https: https://www.gov.br/mec/pt-br/canais_atendimento/ouvidoria `,
+                        solicitante: `Prezado(a) Senhor(a), \n\nA Ouvidoria do Ministério da Educação agradece o seu contato! \n\nInformamos que sua manifestação foi encaminhada para a unidade de ouvidoria do {OUVIDORIA}, responsável pelas providências requeridas. \n\nCaso seja de seu interesse, poderá acompanhar a manifestação por meio do Número Único de Protocolo ${numeroManifestacao} já gerado no Fala.BR e enviado ao seu e-mail. \n\nAgradecemos a sua colaboração e colocamo-nos à disposição sempre que desejar falar com a Ouvidoria do Ministério da Educação. \n\nAtenciosamente, \n\nOuvidoria do Ministério da Educação \n\nACESSE: https: https://www.gov.br/mec/pt-br/canais_atendimento/ouvidoria \n\nAvaliação Ouvidoria \n\nQueremos convidar você a compartilhar sua experiência com a Ouvidoria do MEC (OUV/MEC) e as unidades do Ministério da Educação. \n\nSua participação nos ajudará a melhorar nossos serviços e garantir que continuemos atendendo às suas necessidades da melhor forma possível.  \n\nNos avalie diretamente pela Plataforma Fala.BR, leva apenas alguns minutos e seu feedback será extremamente valioso.  \n\nContamos com você para fazer a diferença! \n\n`
                     }
                 }
             ];
