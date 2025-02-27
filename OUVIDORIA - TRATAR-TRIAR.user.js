@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OUVIDORIA - TRATAR/TRIAR
 // @namespace    http://tampermonkey.net/
-// @version      8.5
+// @version      9.0
 // @description  Ajusta a exibição de prazos e categoria, permite configurar a quantidade de itens.
 // @author       Lucas
 // @match        *://*falabr.cgu.gov.br/Manifestacao/TratarManifestacoes*
@@ -11,10 +11,9 @@
 
 (function () {
     'use strict';
-    // Ajustar datas de vencimento, verificar se as cores de identificação estão corretas e por fim programar: forçar abrir em outra aba quando clicado no NUP.
 
-    // Função para ajustar o número de registros por página
-    function ajustarTamanhoPagina(qtdItens) {
+    // Ajusta o número de registros por página
+    function ajustarItensPorPagina(qtdItens) {
         const input = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_pagTriagem_ctl03_txtTamanhoPagina');
         const botao = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_pagTriagem_ctl03_btnAlterarTamanhoPagina');
         if (input && botao) {
@@ -23,72 +22,16 @@
         }
     }
 
-// Função para ajustar as datas corretamente
-function ajustarData(dataString, dias) {
-    let partes = dataString.split('/');
-    if (partes.length !== 3) return null;
+    // Ajusta as cores de fundo das manifestações com base na situação
+    function ajustarCoresDeSituacao() {
+        const cores = {
+            "Complementação Solicitada": { fundo: "yellow", texto: "black" },
+            "Complementada": { fundo: "green", texto: "white" },
+            "Prorrogada": { fundo: "red", texto: "white" }
+        };
 
-    let data = new Date(partes[2], partes[1] - 1, partes[0]);
-    data.setDate(data.getDate() - dias);
-
-    // Se cair no sábado, antecipa para sexta
-    if (data.getDay() === 6) data.setDate(data.getDate() - 1);
-    // Se cair no domingo, antecipa para sexta
-    if (data.getDay() === 0) data.setDate(data.getDate() - 2);
-
-    return data.toLocaleDateString('pt-BR');
-}
-
-// Função para ajustar as datas corretamente
-function reajustarData(dataString, dias) {
-    let partes = dataString.split('/');
-    if (partes.length !== 3) return null;
-
-    let data = new Date(partes[2], partes[1] - 1, partes[0]);
-    data.setDate(data.getDate() - dias);
-
-    // Se cair no sábado, antecipa para sexta
-    if (data.getDay() === 6) data.setDate(data.getDate() - 1);
-    // Se cair no domingo, antecipa para sexta
-    if (data.getDay() === 0) data.setDate(data.getDate() + 1);
-
-    return data.toLocaleDateString('pt-BR');
-}
-
-// Modifica os prazos corretamente
-function adicionarInformacoesPrazo() {
-    document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblPrazoResposta']").forEach(span => {
-        let prazoAtual = span.textContent.trim();
-        if (!prazoAtual || prazoAtual.includes("Primeira Prorrogação")) return;
-
-        let primeiraProrrogacao = ajustarData(prazoAtual, 10);
-        if (!primeiraProrrogacao) return;
-
-        let cobranca = reajustarData(primeiraProrrogacao, 5); // Cobrança 5 dias antes do prazoAtual
-        if (!cobranca) return;
-
-        let improrrogavel = ajustarData(prazoAtual, -31); // Prazo improrrogável 31 dias depois
-        if (!improrrogavel) return;
-
-        span.innerHTML = `
-            <b> ${prazoAtual} </b><br>
-            Cobrança em:<b> ${cobranca} </b><br>
-            Prorrogar em:<b> ${primeiraProrrogacao} </b><br>
-            Improrrogável em:<b> ${improrrogavel} </b>
-        `;
-    });
-}
-
-    // Ajusta cores de fundo corretamente
-    function ajustarCoresSituacao() {
         document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblSituacaoManifestacao']").forEach(span => {
             let situacao = span.textContent.trim();
-            let cores = {
-                "Complementação Solicitada": { fundo: "yellow", texto: "black" },
-                "Complementada": { fundo: "green", texto: "white" },
-                "Prorrogada": { fundo: "red", texto: "white" }
-            };
-
             if (cores[situacao]) {
                 span.style.backgroundColor = cores[situacao].fundo;
                 span.style.color = cores[situacao].texto;
@@ -99,16 +42,137 @@ function adicionarInformacoesPrazo() {
         });
     }
 
-    // Monitora alterações na página e reaplica as modificações
+// Lista de feriados fixos (adicione mais se necessário)
+const feriados = [
+    "01/01/2025", // Confraternização Universal
+    "03/03/2025", // Carnaval
+    "04/03/2025", // Carnaval
+    "18/04/2025", // Sexta-feira Santa
+    "21/04/2025", // Tiradentes
+    "01/05/2025", // Dia do Trabalho
+    "19/06/2025", // Corpus Christi
+    "28/10/2025", // Dia do Servidor Publico
+    "20/11/2025", // Consciencia Negra
+    "25/12/2025" // Natal
+].map(data => {
+    let partes = data.split('/');
+    return new Date(partes[2], partes[1] - 1, partes[0]).getTime();
+});
+
+// Função para verificar se uma data é feriado
+function ehFeriado(data) {
+    return feriados.includes(data.getTime());
+}
+
+// Ajusta a data, garantindo que caia em um dia útil
+function ajustarDataTramitar(dataString, dias) {
+    let partes = dataString.split('/');
+    if (partes.length !== 3) return null;
+
+    let data = new Date(partes[2], partes[1] - 1, partes[0]);
+    data.setDate(data.getDate() + dias);
+
+    // Se cair no sábado ou domingo, ajusta para sexta-feira
+    if (data.getDay() === 6) data.setDate(data.getDate() - 1);
+    if (data.getDay() === 0) data.setDate(data.getDate() + 1);
+
+    return data; // Retorna como um objeto Date
+}
+
+// Função para contar apenas dias úteis, ignorando feriados
+function calcularDiasUteis(dataInicio, dataFim) {
+    let diasUteis = 0;
+    let dataAtual = new Date(dataInicio);
+
+    while (dataAtual < dataFim) {
+        dataAtual.setDate(dataAtual.getDate() + 1);
+        let diaSemana = dataAtual.getDay();
+        if (diaSemana !== 0 && diaSemana !== 6 && !ehFeriado(dataAtual)) {
+            diasUteis++;
+        }
+    }
+
+    return diasUteis;
+}
+
+// Função para ajustar data garantindo que caia em um dia útil e não seja feriado
+function ajustarDataParaDiaUtil(dataString, dias) {
+    let partes = dataString.split('/');
+    if (partes.length !== 3) return null;
+
+    let data = new Date(partes[2], partes[1] - 1, partes[0]);
+    let diasUteisContados = 0;
+
+    while (diasUteisContados < Math.abs(dias)) {
+        data.setDate(data.getDate() + (dias > 0 ? 1 : -1));
+        let diaSemana = data.getDay();
+        if (diaSemana !== 0 && diaSemana !== 6 && !ehFeriado(data)) {
+            diasUteisContados++;
+        }
+    }
+
+    // Se cair em um feriado, ajusta para o próximo dia útil
+    while (ehFeriado(data) || data.getDay() === 0 || data.getDay() === 6) {
+        data.setDate(data.getDate() + 1);
+    }
+
+    return data; // Retorna como um objeto Date
+}
+
+// Adiciona informações de prazo nas manifestações
+function adicionarInformacoesDePrazo() {
+    document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblPrazoResposta']").forEach((span, index) => {
+        let prazo = span.textContent.trim();
+        if (!prazo || prazo.includes("Primeira Prorrogação")) return;
+
+        const prazoData = ajustarDataParaDiaUtil(prazo, 0);
+        const cobrancaData = ajustarDataParaDiaUtil(prazo, -5); // Ajustado para contar 5 dias úteis antes da data de prorrogação
+        const improrrogavelData = ajustarDataParaDiaUtil(prazo, 31);
+        const tramitarData = ajustarDataTramitar(prazo, -10);
+
+        if (!tramitarData || !cobrancaData || !improrrogavelData) return;
+
+        // Calcula corretamente os dias úteis entre a cobrança e a prorrogação
+        let diasUteisCobranca = calcularDiasUteis(cobrancaData, prazoData);
+
+        // Obtenha a situação do item correspondente (usando o mesmo index)
+        const situacaoSpan = document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblSituacaoManifestacao']")[index];
+        const situacao = situacaoSpan ? situacaoSpan.textContent.trim() : "";
+
+        // Lógica para verificar a situação e exibir o conteúdo apropriado
+        if (situacao === "Prorrogada") {
+            // Exibe somente a primeira prorrogação e a cobrança
+            span.innerHTML = `
+                <b>${tramitarData.toLocaleDateString('pt-BR')}</b><br>
+                Cobrança em:<b> ${cobrancaData.toLocaleDateString('pt-BR')} </b> [${diasUteisCobranca} dias úteis]<br>
+                Prazo Final em:<b> ${prazoData.toLocaleDateString('pt-BR')} </b>
+            `;
+        } else {
+            // Exibe todos os prazos
+            span.innerHTML = `
+                <b>${tramitarData.toLocaleDateString('pt-BR')}</b><br>
+                Cobrança em:<b> ${cobrancaData.toLocaleDateString('pt-BR')} </b> [${diasUteisCobranca} dias úteis]<br>
+                Prorrogar em:<b> ${prazoData.toLocaleDateString('pt-BR')} </b><br>
+                Improrrogável em:<b> ${improrrogavelData.toLocaleDateString('pt-BR')} </b>
+            `;
+        }
+    });
+}
+
+
+
+
+
+    // Observa mudanças na página para reaplicar modificações
     const observer = new MutationObserver(() => {
         if (localStorage.getItem('funcionalidadesAtivadas') !== 'false') {
-            adicionarInformacoesPrazo();
-            ajustarCoresSituacao();
+            adicionarInformacoesDePrazo();
+            ajustarCoresDeSituacao();
         }
     });
     observer.observe(document.body, { childList: true, subtree: true });
 
-    // Criar ícone da engrenagem
+    // Cria o ícone de engrenagem
     function criarIconeEngrenagem() {
         const gearIcon = document.createElement('div');
         gearIcon.id = 'gearIcon';
@@ -132,16 +196,16 @@ function adicionarInformacoesPrazo() {
         document.body.appendChild(gearIcon);
 
         gearIcon.addEventListener('click', () => {
-            const panel = document.getElementById('configPanel');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            const painel = document.getElementById('configPanel');
+            painel.style.display = painel.style.display === 'none' ? 'block' : 'none';
         });
     }
 
-    // Função para criar o painel de configuração
-    function criarPainelConfiguracao() {
-        const panel = document.createElement('div');
-        panel.id = 'configPanel';
-        panel.style.cssText = `
+    // Cria o painel de configurações
+    function criarPainelDeConfiguracao() {
+        const painel = document.createElement('div');
+        painel.id = 'configPanel';
+        painel.style.cssText = `
             position: fixed;
             top: 10%;
             right: 10px;
@@ -154,7 +218,7 @@ function adicionarInformacoesPrazo() {
             width: 300px;
             max-width: 90%;
         `;
-        panel.innerHTML = `
+        painel.innerHTML = `
             <h3>Configurações</h3>
 
             <p>Funcionalidade: <span id="statusFuncionalidade">Ativado</span></p>
@@ -165,80 +229,67 @@ function adicionarInformacoesPrazo() {
 
             <button id="salvarConfig">Salvar Itens por página</button>
         `;
-        document.body.appendChild(panel);
+        document.body.appendChild(painel);
 
         document.getElementById('mudarFuncionalidade').addEventListener('click', () => {
             const statusFuncionalidade = document.getElementById('statusFuncionalidade');
             const isAtivado = statusFuncionalidade.textContent === 'Ativado';
-
-            // Mudar o status para 'Desativado' ou 'Ativado'
             statusFuncionalidade.textContent = isAtivado ? 'Desativado' : 'Ativado';
 
-            // Salvar o estado em localStorage
             localStorage.setItem('funcionalidadesAtivadas', !isAtivado);
 
-            // Desabilitar as funcionalidades ou permitir o ajuste de itens
             if (isAtivado) {
-                // Se for desativado, remover datas e cores
                 document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblPrazoResposta']").forEach(span => {
-                    span.innerHTML = span.textContent; // Remove qualquer modificação de prazo
+                    span.innerHTML = span.textContent; // Remove modificações de prazo
                 });
                 document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblSituacaoManifestacao']").forEach(span => {
                     span.removeAttribute('style'); // Remove as cores de fundo
                 });
             }
 
-            // Atualizar a página ou aplicar as mudanças sem recarregar
-            setTimeout(() => {
-                location.reload(); // Recarregar a página para aplicar mudanças
-            }, 500);
+            setTimeout(() => location.reload(), 500); // Recarregar a página
         });
 
         document.getElementById('salvarConfig').addEventListener('click', () => {
             const qtdItens = parseInt(document.getElementById('qtdItens').value);
             localStorage.setItem('qtdItens', qtdItens);
-            ajustarTamanhoPagina(qtdItens);
+            ajustarItensPorPagina(qtdItens);
 
-            // Aplicar as funcionalidades se estiverem ativadas
-            const funcionalidadesAtivadas = localStorage.getItem('funcionalidadesAtivadas') !== 'false';
-            if (funcionalidadesAtivadas) {
-                adicionarInformacoesPrazo();
-                ajustarCoresSituacao();
+            if (localStorage.getItem('funcionalidadesAtivadas') !== 'false') {
+                adicionarInformacoesDePrazo();
+                ajustarCoresDeSituacao();
             }
         });
 
-        // Definir o estado inicial
         const funcionalidadesAtivadas = localStorage.getItem('funcionalidadesAtivadas') !== 'false';
-        const statusFuncionalidade = document.getElementById('statusFuncionalidade');
-        statusFuncionalidade.textContent = funcionalidadesAtivadas ? 'Ativado' : 'Desativado';
+        document.getElementById('statusFuncionalidade').textContent = funcionalidadesAtivadas ? 'Ativado' : 'Desativado';
         document.getElementById('qtdItens').disabled = !funcionalidadesAtivadas;
     }
 
     // Função principal
-    function main() {
-        const qtdItensSalvo = localStorage.getItem('qtdItens') || 10;
-        ajustarTamanhoPagina(qtdItensSalvo);
+    function executar() {
+        const qtdItens = localStorage.getItem('qtdItens') || 10;
+        ajustarItensPorPagina(qtdItens);
         criarIconeEngrenagem();
-        criarPainelConfiguracao();
+        criarPainelDeConfiguracao();
+
         if (localStorage.getItem('funcionalidadesAtivadas') !== 'false') {
-            adicionarInformacoesPrazo();
-            ajustarCoresSituacao();
+            adicionarInformacoesDePrazo();
+            ajustarCoresDeSituacao();
         }
     }
 
-    // Espera o carregamento da página antes de executar
-    function esperarCarregamentoPagina() {
+    // Aguardar o carregamento da página
+    function aguardarCarregamento() {
         return new Promise(resolve => {
-            const checkInterval = setInterval(() => {
+            const intervalo = setInterval(() => {
                 if (document.body) {
-                    clearInterval(checkInterval);
+                    clearInterval(intervalo);
                     resolve();
                 }
             }, 500);
         });
     }
 
-    // Executa o script
-    esperarCarregamentoPagina().then(main);
-
+    aguardarCarregamento().then(executar);
 })();
