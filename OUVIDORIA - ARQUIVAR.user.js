@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         OUVIDORIA - ARQUIVAR
 // @namespace    http://tampermonkey.net/
-// @version      3.0
+// @version      5.0
 // @description  Script para executar ações específicas em elementos do SEI após clicar no link "Iniciar Processo"
 // @author       Lucas
 // @match        https://falabr.cgu.gov.br/Manifestacao/ArquivarManifestacao.aspx?*
 // @grant        none
-// @downloadURL  https://github.com/Mirante5/JsAgil/raw/OUVIDORIA%20-%20ARQUIVAR.user.js
-// @updateURL    https://github.com/Mirante5/JsAgil/raw/OUVIDORIA%20-%20ARQUIVAR.user.js
+// @downloadURL  https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20ARQUIVAR.user.js
+// @updateURL    https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20ARQUIVAR.user.js
+
 // ==/UserScript==
 
 (function() {

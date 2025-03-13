@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         OUVIDORIA - TRATAR
 // @namespace    http://tampermonkey.net/
-// @version      3.0
+// @version      5.0
 // @description  Script para executar ações específicas em elementos do SEI após clicar no link "Iniciar Processo"
 // @author       Lucas
 // @match        https://falabr.cgu.gov.br/Manifestacao/TratarManifestacao.aspx?*
 // @grant        none
+// @downloadURL  https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20TRATAR.user.js
+// @updateURL    https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20TRATAR.user.js
 // ==/UserScript==
 
 (function() {

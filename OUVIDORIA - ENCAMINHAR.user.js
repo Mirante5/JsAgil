@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         OUVIDORIA - ENCAMINHAR
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      5.0
 // @description  Adiciona justificativas e atualiza texto de solicitante com base no selectize
 // @author       Lucas
 // @match        https://falabr.cgu.gov.br/Manifestacao/EncaminharManifestacao.aspx?*
 // @grant        none
+// @downloadURL  https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20ENCAMINHAR.user.js
+// @updateURL    https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20ENCAMINHAR.user.js
 // ==/UserScript==
 
 (function() {

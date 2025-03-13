@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         OUVIDORIA - TRATAR/TRIAR
 // @namespace    http://tampermonkey.net/
-// @version      10.0
+// @version      5.0
 // @description  Ajusta a exibição de prazos e categoria, permite configurar a quantidade de itens.
 // @author       Lucas
 // @match        *://*falabr.cgu.gov.br/Manifestacao/TratarManifestacoes*
 // @match        *://*falabr.cgu.gov.br/Manifestacao/TriarManifestacoes*
 // @grant        none
+// @downloadURL  https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20TRATAR-TRIAR.user.js
+// @updateURL    https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20TRATAR-TRIAR.user.js
 // ==/UserScript==
 
 (function () {

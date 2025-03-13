@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         OUVIDORIA - STYLE
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      5.0
 // @description  try to take over the world!
 // @author       You
 // @match        *://*falabr.cgu.gov.br/*
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
+// @downloadURL https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20STYLE.user.js
+// @updateURL   https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20STYLE.user.js
 // ==/UserScript==
 
 (function() {
@@ -21,10 +23,10 @@ function modificarLoading() {
 
   // Criando o texto "JSAGIL" com a letra "O" rotacionada dinamicamente
   const textoJSAGIL = `<div style="font-size: 24px; font-weight: bold; margin-top: 1px;">
-                          JS<span id="rotatingO" style="display: inline-block;">|</span>Àgil
+                          JS<span id="rotatingO" style="display: inline-block;">|</span>Àgil 5.0
                         </div>`;
   const madeby = `<div style="font-size: 12px; font-weight: normal; font-style: italic; margin-top: 1px;">
-                          Made by Lucas Emiliano❤
+                          Made by Lucas Emiliano
                         </div>`;
 
   // Alterando o conteúdo do loading

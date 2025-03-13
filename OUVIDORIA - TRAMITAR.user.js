@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         OUVIDORIA - TRAMITAR
 // @namespace    http://tampermonkey.net/
-// @version      2.75
+// @version      5.0
 // @description  Preenche a data automaticamente, adiciona uma aba de resposta e pontos focais, e preenche automaticamente os campos relacionados às secretarias.
 // @author       Lucas
 // @match        https://falabr.cgu.gov.br/Manifestacao/TramitarManifestacao.aspx?*
 // @grant        none
+// @downloadURL  https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20TRAMITAR.user.js
+// @updateURL    https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20TRAMITAR.user.js
 // ==/UserScript==
 
 (function() {

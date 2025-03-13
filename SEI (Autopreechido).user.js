@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         SEI (Autopreechido)
 // @namespace    http://tampermonkey.net/
-// @version      0.8
+// @version      5.0
 // @description  Script para executar ações específicas em elementos do SEI após clicar no link "Iniciar Processo"
 // @author       Lucas
 // @match        https://sei.mec.gov.br/*
-// @downloadURL https://github.com/Mirante5/JsAgil/raw/main/sei.user.js
-// @updateURL   https://github.com/Mirante5/JsAgil/raw/main/sei.user.js
+// @downloadURL  https://github.com/Mirante5/JsAgil/raw/refs/heads/main/SEI%20(Autopreechido).user.js
+// @updateURL    https://github.com/Mirante5/JsAgil/raw/refs/heads/main/SEI%20(Autopreechido).user.js
 // @grant        none
 // ==/UserScript==
 
