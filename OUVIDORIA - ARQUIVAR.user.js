@@ -6,8 +6,8 @@
 // @author       Lucas
 // @match        https://falabr.cgu.gov.br/Manifestacao/ArquivarManifestacao.aspx?*
 // @grant        none
-// @downloadURL  https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20ARQUIVAR.user.js
-// @updateURL    https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20ARQUIVAR.user.js
+// @downloadURL  https://github.com/Mirante5/JsAgil/raw/OUVIDORIA%20-%20ARQUIVAR.user.js
+// @updateURL    https://github.com/Mirante5/JsAgil/raw/OUVIDORIA%20-%20ARQUIVAR.user.js
 // ==/UserScript==
 
 (function() {
