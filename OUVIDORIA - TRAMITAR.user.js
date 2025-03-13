@@ -47,20 +47,20 @@
         const campoTextoTramitar = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtMensagem');
         if (campoTextoTramitar) {
             campoTextoTramitar.value =`À ${campoTags.value} \n\n` +
-                              `Senhores pontos focais,  \n\n` +
-                              `Encaminhamos a presente manifestação por entendermos tratar-se de matéria afeta a essa Unidade.\n\n` +
-                              `Quanto ao tratamento das demandas de Ouvidoria, orientamos que a resposta siga por meio desta Plataforma, até do dia ${calcularDataMenosDezDias()} (20 dias) contendo informações a respeito da possibilidade ou impossibilidade de atendimento da presente manifestação, bem como a forma e os meios para contato do cidadão com a Unidade técnica responsável pela demanda. Em caso de impossibilidade de atendimento dentro do prazo previsto, a manifestação poderá ser prorrogada por igual período, mediante apresentação expressa de justificativa, nos termos do Decreto nº 9492/18 e portaria MEC 1.053/2022.\n\n` +
-                              `Ante o exposto, desde já, solicitamos que a resposta disponibilizada, seja redigida em linguagem simples/cidadã, clara, sem siglas ou tecnicismos e concisa, de maneira a possibilitar a compreensão da mensagem pelo receptor, e por fim, recomendamos que observe o previsto no artigo 19 da Portaria da Controladoria-Geral da União n° 581 de 9 de março de 2021.\n\n` +
-                              `Art. 19. Na elaboração de respostas conclusivas às manifestações, as unidades do SisOuv observarão o seguinte conteúdo mínimo:\n\n` +
-                              `I - no caso de elogio, informação sobre o seu encaminhamento e cientificação ao agente público ou ao responsável pelo serviço público prestado, e à sua chefia imediata;\n\n` +
-                              `II - no caso de reclamação, informação objetiva acerca da análise do fato apontado;\n\n` +
-                              `III - no caso de solicitação, informação sobre a possibilidade, a forma e o meio de atendimento à solicitação;\n\n` +
-                              `IV - no caso de sugestão, manifestação do gestor sobre a possibilidade de sua adoção, informando o período estimado de tempo necessário à sua implementação, quando couber; e\n\n` +
-                              `V - no caso de denúncia, informação sobre o seu encaminhamento às unidades apuratórias competentes ou sobre o seu arquivamento.\n\n` +
-                              `Em caso de dúvidas favor contatar: lucasmiranda@mec.gov.br\n\n` +
-                              `Caso a manifestação tenha sido encaminhada de forma equivocada a essa Unidade, favor restituí-la à Ouvidoria imediatamente.\n\n` +
-                              `Atenciosamente,\n\n` +
-                              `Ouvidoria do Ministério da Educação`;
+                `Senhores pontos focais,  \n\n` +
+                `Encaminhamos a presente manifestação por entendermos tratar-se de matéria afeta a essa Unidade.\n\n` +
+                `Quanto ao tratamento das demandas de Ouvidoria, orientamos que a resposta siga por meio desta Plataforma, até do dia ${calcularDataMenosDezDias()} (20 dias) contendo informações a respeito da possibilidade ou impossibilidade de atendimento da presente manifestação, bem como a forma e os meios para contato do cidadão com a Unidade técnica responsável pela demanda. Em caso de impossibilidade de atendimento dentro do prazo previsto, a manifestação poderá ser prorrogada por igual período, mediante apresentação expressa de justificativa, nos termos do Decreto nº 9492/18 e portaria MEC 1.053/2022.\n\n` +
+                `Ante o exposto, desde já, solicitamos que a resposta disponibilizada, seja redigida em linguagem simples/cidadã, clara, sem siglas ou tecnicismos e concisa, de maneira a possibilitar a compreensão da mensagem pelo receptor, e por fim, recomendamos que observe o previsto no artigo 19 da Portaria da Controladoria-Geral da União n° 581 de 9 de março de 2021.\n\n` +
+                `Art. 19. Na elaboração de respostas conclusivas às manifestações, as unidades do SisOuv observarão o seguinte conteúdo mínimo:\n\n` +
+                `I - no caso de elogio, informação sobre o seu encaminhamento e cientificação ao agente público ou ao responsável pelo serviço público prestado, e à sua chefia imediata;\n\n` +
+                `II - no caso de reclamação, informação objetiva acerca da análise do fato apontado;\n\n` +
+                `III - no caso de solicitação, informação sobre a possibilidade, a forma e o meio de atendimento à solicitação;\n\n` +
+                `IV - no caso de sugestão, manifestação do gestor sobre a possibilidade de sua adoção, informando o período estimado de tempo necessário à sua implementação, quando couber; e\n\n` +
+                `V - no caso de denúncia, informação sobre o seu encaminhamento às unidades apuratórias competentes ou sobre o seu arquivamento.\n\n` +
+                `Em caso de dúvidas favor contatar: lucasmiranda@mec.gov.br\n\n` +
+                `Caso a manifestação tenha sido encaminhada de forma equivocada a essa Unidade, favor restituí-la à Ouvidoria imediatamente.\n\n` +
+                `Atenciosamente,\n\n` +
+                `Ouvidoria do Ministério da Educação`;
 
             // Força o estilo do campo de mensagem
             campoTextoTramitar.style.width = "515px";
@@ -78,48 +78,49 @@
 
         // Estrutura do painel com a ListBox para selecionar a Secretaria
         painel.innerHTML = `
-            <div style="color: #333; background-color: #f5f5f5; border-color: #ddd; padding: 10px 15px; border-bottom: 1px solid transparent; border-top-left-radius: 3px; border-top-right-radius: 3px; box-sizing: border-box; display: block; unicode-bidi: isolate;">
-                <h4 class="panel-title" style="margin: 0;">Pontos Focais</h4>
-            </div>
-            <div>
-                <dt>Selecione a Secretaria</dt>
-                <dd>
-                    <select id="secretariasList" style="width: 100%; padding: 8px; margin-bottom: 10px;">
-                        <option value="">Escolha uma Secretaria</option>
-                        <option value="SESU">Secretaria de Educação Superior - SESu</option>
-                        <option value="SERES">Secretaria de Regulação e Supervisão da Educação Superior - SERES</option>
-                        <option value="SETEC">Secretaria de Educação Profissional e Tecnológica - SETEC</option>
-                        <option value="SEB">Secretaria de Educação Básica - SEB</option>
-                        <option value="SASE">Secretaria de Articulação Intersetorial e com os Sistemas de Ensino - SASE</option>
-                        <option value="SECADI">Secretaria de Educação Continuada, Alfabetização, Diversidade e Inclusão - SECADI</option>
-                        <option value="STIC">Subsecretaria de Tecnologia da Informação e Comunicação - STIC</option>
-                        <option value="SPO">Subsecretaria de Planejamento e Orçamento - SPO</option>
-                        <option value="SGA">Subsecretaria de Gestão Administrativa - SGA</option>
-                        <option value="SE">Secretaria Executiva - SE</option>
-                        <option value="COR">Corregedoria - COR</option>
-                        <option value="CONJUR">Consultoria Jurídica - CONJUR</option>
-                        <option value="AECI">Assessoria Especial de Controle Interno - AECI</option>
-                        <option value="GM">Gabinete do Ministro - GM</option>
-                        <option value="CNE">Conselho Nacional de Educação - CNE</option>
-                        <option value="SEGAPE">Inovação e Avaliação de Políticas Educacionais (Segape)</option>
-                    </select>
-                </dd>
+    <div style="color: #333; background-color: #f5f5f5; border-color: #ddd; padding: 10px 15px; border-bottom: 1px solid transparent; border-top-left-radius: 3px; border-top-right-radius: 3px; box-sizing: border-box; display: block; unicode-bidi: isolate;">
+        <h4 class="panel-title" style="margin: 0;">Pontos Focais</h4>
+    </div>
+    <div>
+        <dt>Selecione a Secretaria</dt>
+        <dd>
+            <select id="secretariasList" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                <option value="">Escolha uma Secretaria</option>
+                <option value="SESU">Secretaria de Educação Superior - SESu</option>
+                <option value="SERES">Secretaria de Regulação e Supervisão da Educação Superior - SERES</option>
+                <option value="SETEC">Secretaria de Educação Profissional e Tecnológica - SETEC</option>
+                <option value="SEB">Secretaria de Educação Básica - SEB</option>
+                <option value="SASE">Secretaria de Articulação Intersetorial e com os Sistemas de Ensino - SASE</option>
+                <option value="SECADI">Secretaria de Educação Continuada, Alfabetização, Diversidade e Inclusão - SECADI</option>
+                <option value="STIC">Subsecretaria de Tecnologia da Informação e Comunicação - STIC</option>
+                <option value="SPO">Subsecretaria de Planejamento e Orçamento - SPO</option>
+                <option value="SGA">Subsecretaria de Gestão Administrativa - SGA</option>
+                <option value="SE">Secretaria Executiva - SE</option>
+                <option value="COR">Corregedoria - COR</option>
+                <option value="CONJUR">Consultoria Jurídica - CONJUR</option>
+                <option value="AECI">Assessoria Especial de Controle Interno - AECI</option>
+                <option value="GM">Gabinete do Ministro - GM</option>
+                <option value="CNE">Conselho Nacional de Educação - CNE</option>
+                <option value="SEGAPE">Inovação e Avaliação de Políticas Educacionais (Segape)</option>
+            </select>
+        </dd>
 
-                <dt>Nome(s) relacionado(s)</dt>
-                <dd>
-                    <ul id="nomesSecretaria" style="list-style-type: none; padding-left: 0;">
-                        <!-- Nomes serão exibidos aqui -->
-                    </ul>
-                </dd>
-            </div>
-        `;
+        <dt>Nome(s) relacionado(s)</dt>
+        <dd>
+            <ul id="nomesSecretaria" style="list-style-type: none; padding-left: 0;">
+                <!-- Nomes serão exibidos aqui -->
+            </ul>
+        </dd>
+        <button id="autotramitar" type="button">Tramitar</button>
+    </div>
+`;
 
         // Função para exibir os nomes relacionados à secretaria selecionada
         function exibirNomes() {
             const nomesSecretaria = document.getElementById('nomesSecretaria');
             const listaSecretarias = {
                 SESU: ["GRECE MARIA SOUSA CARDOSO", "HELOISA SANTOS OLIVEIRA", "ELIZABETH RODRIGUES MARTINS ROCHA SILVA", "KENYA REIS SILVA DIAS"],
-                SERES: ["OTAVIO PEREIRA DE CARVALHO", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA", "JHENYFER DA SILVA SOARES"],
+                SERES: ["OTAVIO PEREIRA DE CARVALHO", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA"],
                 SETEC: ["MARINA RAMOS VASCONCELOS RADA", "KATARINA EZILDA FERREIRA SANTIAGO", "NAYARA DE PADUA RESENDE"],
                 SEB: ["PAULA GOMES FRANCA", "ELMA CLARA QUEIROZ RAMOS SIQUEIRA"],
                 SASE: ["IVONE COSTA DE OLIVEIRA", "ROGERIO DE JESUS COSTA SOUSA"],
@@ -128,12 +129,12 @@
                 SPO: ["LUCIANA NUNES DE OLIVEIRA", "JUNIA LAGOEIRO DUTRA NEHME"],
                 SGA: ["HEDER SILVA E NORONHA", "ANTÔNIO FRANCISCO DE SOUZA", "FERNANDA DIAS FERNANDES", "Antonio Weverson Gomes dos Santos"],
                 SE: ["MARCOS GONZAGA DE LIMA", "ANA CRISTINA SOUZA DA SILVA"],
-                COR: ["FABRIZIA DE LIMA", "LUIZA DALVA RODRIGUES PAIVA", "FERNANDO COSTA DE ALMEIDA", "RAFAEL COELHO DE SOUSA", "RAQUEL GUERRA LOPES DOS SANTOS", "ILA DELAHIS JANSEN VALENTE OLIVEIRA", "MARIA DE FÁTIMA SANTOS VIANA"],
-                CONJUR: ["AMANDA PRICILA ESTRELA BIZINOTO FELTRIM", "THIAGO RAFAEL FAGUNDES", "MARIA DAS DORES BATISTA "],
+                COR: ["FABRIZIA DE LIMA", "LUIZA DALVA RODRIGUES PAIVA"],
+                CONJUR: ["AMANDA PRICILA ESTRELA BIZINOTO FELTRIM", "THIAGO RAFAEL FAGUNDES"],
                 AECI: ["RUTH MARIANA LIMA CORDEIRO"],
-                GM: ["GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO", "LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"],
-                CNE: ["DANIEL ARAGAO PARENTE VALENTIM", "MARCELA ARAUJO BASILIO FRANCA PAVETITS", "LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"],
-                SEGAPE: ["Cláudia Rezende Medeiros Passsetto", "VALERIA DA COSTA RODRIGUES ALVES DE LIMA VIEIRA "]
+                GM: ["GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO"],
+                CNE: ["DANIEL ARAGAO PARENTE VALENTIM"],
+                SEGAPE: ["Cláudia Rezende Medeiros Passsetto"]
             };
 
             const secretariaSelecionada = document.getElementById('secretariasList').value;
@@ -148,11 +149,107 @@
             }
         }
 
-        // Adiciona o painel como a primeira div dentro da classe especificada
+function autotramitar() {
+    document.getElementById("autotramitar").addEventListener("click", function () {
+        let select = document.getElementById("secretariasList");
+        let secretariaSelecionada = select.value;
+        let nomesSecretaria = {
+            SESU: ["GRECE MARIA SOUSA CARDOSO", "HELOISA SANTOS OLIVEIRA", "ELIZABETH RODRIGUES MARTINS ROCHA SILVA", "KENYA REIS SILVA DIAS"],
+            SERES: ["OTAVIO PEREIRA DE CARVALHO", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA"],
+            SETEC: ["MARINA RAMOS VASCONCELOS RADA", "KATARINA EZILDA FERREIRA SANTIAGO", "NAYARA DE PADUA RESENDE"],
+            SEB: ["PAULA GOMES FRANCA", "ELMA CLARA QUEIROZ RAMOS SIQUEIRA"],
+            SASE: ["IVONE COSTA DE OLIVEIRA", "ROGERIO DE JESUS COSTA SOUSA"],
+            SECADI: ["ANTONIO DE MELO SANTOS", "ROBSON RODRIGUES DE OLIVEIRA"],
+            STIC: ["BRUNO CORREA MIRANDA", "RAPHAEL ZERLOTTINI DOS REIS"],
+            SPO: ["LUCIANA NUNES DE OLIVEIRA", "JUNIA LAGOEIRO DUTRA NEHME"],
+            SGA: ["HEDER SILVA E NORONHA", "ANTÔNIO FRANCISCO DE SOUZA", "FERNANDA DIAS FERNANDES", "Antonio Weverson Gomes dos Santos"],
+            SE: ["MARCOS GONZAGA DE LIMA", "ANA CRISTINA SOUZA DA SILVA"],
+            COR: ["FABRIZIA DE LIMA", "LUIZA DALVA RODRIGUES PAIVA", "FERNANDO COSTA DE ALMEIDA", "RAFAEL COELHO DE SOUSA", "RAQUEL GUERRA LOPES DOS SANTOS", "ILA DELAHIS JANSEN VALENTE OLIVEIRA", "MARIA DE FÁTIMA SANTOS VIANA"],
+            CONJUR: ["AMANDA PRICILA ESTRELA BIZINOTO FELTRIM", "THIAGO RAFAEL FAGUNDES", "MARIA DAS DORES BATISTA"],
+            AECI: ["RUTH MARIANA LIMA CORDEIRO"],
+            GM: ["GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO", "LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"],
+            CNE: ["DANIEL ARAGAO PARENTE VALENTIM", "MARCELA ARAUJO BASILIO FRANCA PAVETITS", "LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"],
+            SEGAPE: ["Cláudia Rezende Medeiros Passsetto", "VALERIA DA COSTA RODRIGUES ALVES DE LIMA VIEIRA"]
+        };
+
+        let nomes = nomesSecretaria[secretariaSelecionada] || [];
+        if (nomes.length === 0) {
+            alert("Selecione uma secretaria válida!");
+            return;
+        }
+
+        // Função para verificar os nomes já adicionados na tabela
+        function getNomesNaTabela() {
+            let tabela = document.getElementById("ConteudoForm_ConteudoGeral_ConteudoFormComAjax_grdUsuariosUnidades");
+            if (!tabela) return [];
+
+            let nomesNaTabela = [];
+            let spans = tabela.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_grdUsuariosUnidades_lblNomeItem']");
+            spans.forEach(span => nomesNaTabela.push(span.textContent.trim()));
+
+            return nomesNaTabela;
+        }
+
+        // Função para adicionar um nome
+        function adicionarNome(index = 0) {
+            if (index >= nomes.length) {
+                alert("Todos os nomes foram verificados e adicionados!");
+                return;
+            }
+
+            let nomesNaTabela = getNomesNaTabela();
+            let nome = nomes[index];
+
+            // Se o nome já foi adicionado, passa para o próximo
+            if (nomesNaTabela.includes(nome)) {
+                console.log(`Nome já existe: ${nome}`);
+                adicionarNome(index + 1); // Chama a função recursivamente para o próximo nome
+                return;
+            }
+
+            let input = document.getElementById("selectize_0");
+            let botaoAdicionar = document.getElementById("ConteudoForm_ConteudoGeral_ConteudoFormComAjax_btnIncluirUsuario");
+
+            if (!input || !botaoAdicionar) {
+                alert("Erro: Elementos necessários não encontrados.");
+                return;
+            }
+
+            input.click();
+            input.value = nome;
+
+            let eventInput = new Event("input", { bubbles: true });
+            input.dispatchEvent(eventInput);
+
+            setTimeout(() => {
+                let eventEnter = new KeyboardEvent("keydown", { key: "Enter", keyCode: 13, which: 13, bubbles: true });
+                input.dispatchEvent(eventEnter);
+
+                // Clica no botão para adicionar o nome
+                botaoAdicionar.click(); // Clica no botão para adicionar o nome
+
+                // Espera a página carregar e aguarda um tempo extra antes de continuar o próximo
+                setTimeout(() => {
+                    adicionarNome(index + 1); // Chama a função recursivamente para o próximo nome
+                }, 3000); // Aguarda 3 segundos para garantir que o AJAX tenha terminado
+            }, 500); // Aguarda 500ms para "Enter" ser disparado
+        }
+
+        // Começa o processo de adicionar os nomes
+        adicionarNome();
+    });
+}
+
+
+        // Adiciona o painel no local correto
         const container = document.querySelector('.col-md-6.col-md-push-6.hidden-print');
         if (container) {
             container.insertBefore(painel, container.firstChild);
         }
+
+        // Configura eventos
+        document.getElementById('secretariasList').addEventListener('change', exibirNomes);
+        autotramitar(); // Chama a função para adicionar evento ao botão
 
         // Adiciona o evento de seleção para exibir os nomes
         const selectSecretarias = document.getElementById('secretariasList');
@@ -163,7 +260,7 @@
                 selectSecretarias.value = secretariaSalva;
                 exibirNomes(secretariaSalva);
             }
-        selectSecretarias.addEventListener('change', function() {
+            selectSecretarias.addEventListener('change', function() {
                 const secretariaSelecionada = this.value;
                 localStorage.setItem('secretariaSelecionada', secretariaSelecionada);
                 exibirNomes(secretariaSelecionada);

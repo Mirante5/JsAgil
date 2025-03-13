@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OUVIDORIA - TRATAR/TRIAR
 // @namespace    http://tampermonkey.net/
-// @version      9.0
+// @version      10.0
 // @description  Ajusta a exibição de prazos e categoria, permite configurar a quantidade de itens.
 // @author       Lucas
 // @match        *://*falabr.cgu.gov.br/Manifestacao/TratarManifestacoes*
@@ -42,109 +42,112 @@
         });
     }
 
-// Lista de feriados fixos (adicione mais se necessário)
-const feriados = [
-    "01/01/2025", // Confraternização Universal
-    "03/03/2025", // Carnaval
-    "04/03/2025", // Carnaval
-    "18/04/2025", // Sexta-feira Santa
-    "21/04/2025", // Tiradentes
-    "01/05/2025", // Dia do Trabalho
-    "19/06/2025", // Corpus Christi
-    "28/10/2025", // Dia do Servidor Publico
-    "20/11/2025", // Consciencia Negra
-    "25/12/2025" // Natal
-].map(data => {
-    let partes = data.split('/');
-    return new Date(partes[2], partes[1] - 1, partes[0]).getTime();
-});
+    // Lista de feriados fixos (adicione mais se necessário)
+    const feriados = [
+        "01/01/2025", // Confraternização Universal
+        "03/03/2025", // Carnaval
+        "04/03/2025", // Carnaval
+        "18/04/2025", // Sexta-feira Santa
+        "21/04/2025", // Tiradentes
+        "01/05/2025", // Dia do Trabalho
+        "19/06/2025", // Corpus Christi
+        "28/10/2025", // Dia do Servidor Publico
+        "20/11/2025", // Consciencia Negra
+        "25/12/2025" // Natal
+    ].map(data => {
+        let partes = data.split('/');
+        return new Date(partes[2], partes[1] - 1, partes[0]).getTime();
+    });
 
-// Função para verificar se uma data é feriado
-function ehFeriado(data) {
-    return feriados.includes(data.getTime());
-}
+    // Função para verificar se uma data é feriado
+    function ehFeriado(data) {
+        return feriados.includes(data.getTime());
+    }
 
-// Ajusta a data, garantindo que caia em um dia útil
-function ajustarDataTramitar(dataString, dias) {
-    let partes = dataString.split('/');
-    if (partes.length !== 3) return null;
+    // Ajusta a data, garantindo que caia em um dia útil
+    function ajustarDataTramitar(dataString, dias) {
+        let partes = dataString.split('/');
+        if (partes.length !== 3) return null;
 
-    let data = new Date(partes[2], partes[1] - 1, partes[0]);
-    data.setDate(data.getDate() + dias);
+        let data = new Date(partes[2], partes[1] - 1, partes[0]);
+        data.setDate(data.getDate() + dias);
 
-    // Se cair no sábado ou domingo, ajusta para sexta-feira
-    if (data.getDay() === 6) data.setDate(data.getDate() - 1);
-    if (data.getDay() === 0) data.setDate(data.getDate() + 1);
+        // Se cair no sábado ou domingo, ajusta para sexta-feira
+        if (data.getDay() === 6) data.setDate(data.getDate() - 1);
+        if (data.getDay() === 0) data.setDate(data.getDate() + 1);
 
-    return data; // Retorna como um objeto Date
-}
+        return data; // Retorna como um objeto Date
+    }
 
-// Função para contar apenas dias úteis, ignorando feriados
-function calcularDiasUteis(dataInicio, dataFim) {
-    let diasUteis = 0;
-    let dataAtual = new Date(dataInicio);
+    // Função para contar apenas dias úteis, ignorando feriados
+    function calcularDiasUteis(dataInicio, dataFim) {
+        let diasUteis = 0;
+        let dataAtual = new Date(dataInicio);
 
-    while (dataAtual < dataFim) {
-        dataAtual.setDate(dataAtual.getDate() + 1);
-        let diaSemana = dataAtual.getDay();
-        if (diaSemana !== 0 && diaSemana !== 6 && !ehFeriado(dataAtual)) {
-            diasUteis++;
+        while (dataAtual < dataFim) {
+            dataAtual.setDate(dataAtual.getDate() + 1);
+            let diaSemana = dataAtual.getDay();
+            if (diaSemana !== 0 && diaSemana !== 6 && !ehFeriado(dataAtual)) {
+                diasUteis++;
+            }
         }
+
+        return diasUteis;
     }
 
-    return diasUteis;
-}
+    // Função para ajustar data garantindo que caia em um dia útil e não seja feriado
+    function ajustarDataParaDiaUtil(dataString, dias) {
+        let partes = dataString.split('/');
+        if (partes.length !== 3) return null;
 
-// Função para ajustar data garantindo que caia em um dia útil e não seja feriado
-function ajustarDataParaDiaUtil(dataString, dias) {
-    let partes = dataString.split('/');
-    if (partes.length !== 3) return null;
+        let data = new Date(partes[2], partes[1] - 1, partes[0]);
+        let diasUteisContados = 0;
 
-    let data = new Date(partes[2], partes[1] - 1, partes[0]);
-    let diasUteisContados = 0;
-
-    while (diasUteisContados < Math.abs(dias)) {
-        data.setDate(data.getDate() + (dias > 0 ? 1 : -1));
-        let diaSemana = data.getDay();
-        if (diaSemana !== 0 && diaSemana !== 6 && !ehFeriado(data)) {
-            diasUteisContados++;
+        while (diasUteisContados < Math.abs(dias)) {
+            data.setDate(data.getDate() + (dias > 0 ? 1 : -1));
+            let diaSemana = data.getDay();
+            if (diaSemana !== 0 && diaSemana !== 6 && !ehFeriado(data)) {
+                diasUteisContados++;
+            }
         }
+
+        // Se cair em um feriado, ajusta para o próximo dia útil
+        while (ehFeriado(data) || data.getDay() === 0 || data.getDay() === 6) {
+            data.setDate(data.getDate() + 1);
+        }
+
+        return data; // Retorna como um objeto Date
     }
 
-    // Se cair em um feriado, ajusta para o próximo dia útil
-    while (ehFeriado(data) || data.getDay() === 0 || data.getDay() === 6) {
-        data.setDate(data.getDate() + 1);
-    }
+    // Adiciona informações de prazo nas manifestações
+    function adicionarInformacoesDePrazo() {
+        document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblPrazoResposta']").forEach((span, index) => {
+            let prazo = span.textContent.trim();
+            if (!prazo || prazo.includes("Primeira Prorrogação")) return;
 
-    return data; // Retorna como um objeto Date
-}
+            const prazoData = ajustarDataParaDiaUtil(prazo, 0);
+            const cobrancaData = ajustarDataParaDiaUtil(prazo, -5);
+            const cobrancaImprorrogavelData = ajustarDataParaDiaUtil(prazo, -2);
+            const improrrogavelData = ajustarDataParaDiaUtil(prazo, 31);
+            const tramitarData = ajustarDataTramitar(prazo, -10);
 
-// Adiciona informações de prazo nas manifestações
-function adicionarInformacoesDePrazo() {
-    document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblPrazoResposta']").forEach((span, index) => {
-        let prazo = span.textContent.trim();
-        if (!prazo || prazo.includes("Primeira Prorrogação")) return;
 
-        const prazoData = ajustarDataParaDiaUtil(prazo, 0);
-        const cobrancaData = ajustarDataParaDiaUtil(prazo, -5); // Ajustado para contar 5 dias úteis antes da data de prorrogação
-        const improrrogavelData = ajustarDataParaDiaUtil(prazo, 31);
-        const tramitarData = ajustarDataTramitar(prazo, -10);
+            if (!tramitarData || !cobrancaData || !improrrogavelData || !cobrancaImprorrogavelData) return;
 
-        if (!tramitarData || !cobrancaData || !improrrogavelData) return;
+            // Calcula corretamente os dias úteis entre a cobrança e a prorrogação
+            let diasUteisCobranca = calcularDiasUteis(cobrancaData, prazoData);
+            let diasUteisCobrancaImprorrogavel = calcularDiasUteis(cobrancaImprorrogavelData, prazoData);
 
-        // Calcula corretamente os dias úteis entre a cobrança e a prorrogação
-        let diasUteisCobranca = calcularDiasUteis(cobrancaData, prazoData);
+            // Obtenha a situação do item correspondente (usando o mesmo index)
+            const situacaoSpan = document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblSituacaoManifestacao']")[index];
+            const situacao = situacaoSpan ? situacaoSpan.textContent.trim() : "";
 
-        // Obtenha a situação do item correspondente (usando o mesmo index)
-        const situacaoSpan = document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblSituacaoManifestacao']")[index];
-        const situacao = situacaoSpan ? situacaoSpan.textContent.trim() : "";
-
-        // Lógica para verificar a situação e exibir o conteúdo apropriado
-        if (situacao === "Prorrogada") {
-            // Exibe somente a primeira prorrogação e a cobrança
-            span.innerHTML = `
+            // Lógica para verificar a situação e exibir o conteúdo apropriado
+            if (situacao === "Prorrogada") {
+                // Exibe somente a primeira prorrogação e a cobrança
+                span.innerHTML = `
                 <b>${tramitarData.toLocaleDateString('pt-BR')}</b><br>
-                Cobrança em:<b> ${cobrancaData.toLocaleDateString('pt-BR')} </b> [${diasUteisCobranca} dias úteis]<br>
+                Cobrança em:<b> ${cobrancaImprorrogavelData.toLocaleDateString('pt-BR')} </b> [${diasUteisCobrancaImprorrogavel} dias úteis]<br>
                 Prazo Final em:<b> ${prazoData.toLocaleDateString('pt-BR')} </b>
             `;
         } else {
@@ -159,13 +162,42 @@ function adicionarInformacoesDePrazo() {
     });
 }
 
-
-
-
+    //remove opção de clicar
+    function removerHrefLinksEspecificos() {
+        document.querySelectorAll('[id^="ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lnkNumero_"]').forEach(link => {
+            link.removeAttribute('href');
+        // Adiciona evento de clique para copiar o texto
+        link.addEventListener('click', () => {
+            navigator.clipboard.writeText(link.textContent.trim())
+                .then(() => {
+                    let msg = document.querySelector('#msg-copiado');
+                    if (!msg) {
+                        msg = document.createElement('div');
+                        msg.id = 'msg-copiado';
+                        msg.style.position = 'absolute';
+                        msg.style.top = '100%';
+                        msg.style.left = '50%';
+                        msg.style.transform = 'translateX(-50%)';
+                        msg.style.background = 'black';
+                        msg.style.color = 'white';
+                        msg.style.padding = '5px';
+                        msg.style.borderRadius = '5px';
+                        msg.style.fontSize = '12px';
+                        msg.style.whiteSpace = 'nowrap';
+                        link.appendChild(msg);
+                    }
+                    msg.textContent = 'Texto copiado!';
+                    setTimeout(() => msg.remove(), 250);
+                })
+                .catch(err => console.error('Erro ao copiar:', err));
+        }, { once: true });
+    });
+}
 
     // Observa mudanças na página para reaplicar modificações
     const observer = new MutationObserver(() => {
         if (localStorage.getItem('funcionalidadesAtivadas') !== 'false') {
+            removerHrefLinksEspecificos();
             adicionarInformacoesDePrazo();
             ajustarCoresDeSituacao();
         }

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OUVIDORIA - TRATAR
 // @namespace    http://tampermonkey.net/
-// @version      2.5
+// @version      3.0
 // @description  Script para executar ações específicas em elementos do SEI após clicar no link "Iniciar Processo"
 // @author       Lucas
 // @match        https://falabr.cgu.gov.br/Manifestacao/TratarManifestacao.aspx?*
@@ -23,22 +23,23 @@
         });
     }
 
-// Função para reanexar o botão caso ele seja removido
-function observarMudancas() {
-    const observer = new MutationObserver(() => {
-        if (!document.body.contains(btn)) {
-            console.log('Botão desapareceu! Recriando...');
-            const targetDiv = document.querySelector('#ConteudoForm_ConteudoGeral_ConteudoFormComAjax_UpdatePanel3');
-            if (targetDiv) {
-                targetDiv.appendChild(btn);
+    // Função para reanexar o botão caso ele seja removido
+    function observarMudancas() {
+        const observer = new MutationObserver(() => {
+            if (!document.body.contains(btn)) {
+                console.log('Botão desapareceu! Recriando...');
+                const targetDiv = document.querySelector('#ConteudoForm_ConteudoGeral_ConteudoFormComAjax_UpdatePanel3');
+                if (targetDiv) {
+                    targetDiv.appendChild(btn);
+                }
             }
-        }
-    });
+        });
 
-    observer.observe(document.body, { childList: true, subtree: true });
-}
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
 
-observarMudancas();
+    observarMudancas();
+
     // Criação do botão "Adicionar dados do cidadão"
     const btn = document.createElement('input');
     btn.type = 'submit';
@@ -71,6 +72,39 @@ observarMudancas();
         const contribuicaoField = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtContribuicao');
         if (contribuicaoField) {
             contribuicaoField.value = `Nome: ${nome}\nDocumento (${documentotipo}): ${documento}\nEmail: ${email}`;
+        }
+    });
+
+    // Criação do botão "Adicionar dados do cidadão"
+    const btntxtprorrogacao = document.createElement('input');
+    btntxtprorrogacao.type = 'submit';
+    btntxtprorrogacao.value = 'Texto de Prorrogação';
+    btntxtprorrogacao.className = 'btn btn-sm btn-primary';
+    btntxtprorrogacao.style.marginLeft = '1px';
+    btntxtprorrogacao.style.marginTop = '5px';
+
+    btntxtprorrogacao.addEventListener('mouseover', function() {
+        btntxtprorrogacao.style.backgroundColor = '#015298';
+    });
+
+    btntxtprorrogacao.addEventListener('mouseout', function() {
+        btntxtprorrogacao.style.backgroundColor = '#337ab7';
+    });
+
+    // Insere o botão dentro da div desejada
+    const targetDivprorrogacao = document.querySelector('#ConteudoForm_ConteudoGeral_ConteudoFormComAjax_UpdatePanel3');
+    if (targetDivprorrogacao) {
+        targetDivprorrogacao.appendChild(btntxtprorrogacao);
+    }
+
+    // Adiciona evento de clique para preencher o campo de contribuição
+    btntxtprorrogacao.addEventListener('click', function(event) {
+        event.preventDefault();
+        const datalimite = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtPrazoAtendimento')?.textContent || '';
+
+        const contribuicaoField = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtContribuicao');
+        if (contribuicaoField) {
+            contribuicaoField.value = `Devido a ausência de resposta conclusiva, a presente manifestação foi prorrogada. Informamos que o novo prazo de atendimento (improrrogável) é dia ${datalimite}.`;
         }
     });
 })();
