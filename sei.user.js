@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         SEI (Autopreechido)
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      0.8
 // @description  Script para executar ações específicas em elementos do SEI após clicar no link "Iniciar Processo"
 // @author       Lucas
 // @match        https://sei.mec.gov.br/*
