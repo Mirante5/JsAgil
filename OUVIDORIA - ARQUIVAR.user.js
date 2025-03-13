@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OUVIDORIA - ARQUIVAR
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      3.0
 // @description  Script para executar ações específicas em elementos do SEI após clicar no link "Iniciar Processo"
 // @author       Lucas
 // @match        https://falabr.cgu.gov.br/Manifestacao/ArquivarManifestacao.aspx?*
