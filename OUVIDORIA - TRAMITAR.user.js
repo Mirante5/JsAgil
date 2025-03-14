@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OUVIDORIA - TRAMITAR
 // @namespace    http://tampermonkey.net/
-// @version      5.25
+// @version      5.5
 // @description  Preenche a data automaticamente, adiciona uma aba de resposta e pontos focais, e preenche automaticamente os campos relacionados às secretarias.
 // @author       Lucas
 // @match        https://falabr.cgu.gov.br/Manifestacao/TramitarManifestacao.aspx?*
@@ -151,96 +151,100 @@
             }
         }
 
-function autotramitar() {
-    document.getElementById("autotramitar").addEventListener("click", function () {
-        let select = document.getElementById("secretariasList");
-        let secretariaSelecionada = select.value;
-        let nomesSecretaria = {
-                SESU: ["Secretaria de Educação Superior- GABINETE/SESU","GRECE MARIA SOUSA CARDOSO", "HELOISA SANTOS OLIVEIRA", "ELIZABETH RODRIGUES MARTINS ROCHA SILVA", "KENYA REIS SILVA DIAS"],
-                SERES: ["Secretaria de Regulação e Supervisão da Educação Superior- SERES","OTAVIO PEREIRA DE CARVALHO", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA"],
-                SETEC: ["Secretaria de Educação Profissional e Tecnológica- SETEC","MARINA RAMOS VASCONCELOS RADA", "KATARINA EZILDA FERREIRA SANTIAGO", "NAYARA DE PADUA RESENDE"],
-                SEB: ["Secretaria de Educação Básica- SEB","PAULA GOMES FRANCA", "ELMA CLARA QUEIROZ RAMOS SIQUEIRA"],
-                SASE: ["Secretaria de Articulação com os Sistemas de Ensino- SASE","IVONE COSTA DE OLIVEIRA", "ROGERIO DE JESUS COSTA SOUSA"],
-                SECADI: ["Secretaria de Educação Continuada, Alfabetização de Jovens e Adultos, Diversidade e Inclusão- SECADI","ANTONIO DE MELO SANTOS", "ROBSON RODRIGUES DE OLIVEIRA"],
-                STIC: ["Subsecretaria de Tecnologia da Informação e Comunicação- STIC","BRUNO CORREA MIRANDA", "RAPHAEL ZERLOTTINI DOS REIS"],
-                SPO: ["Subsecretaria de Planejamento e Orçamento- SPO","LUCIANA NUNES DE OLIVEIRA", "JUNIA LAGOEIRO DUTRA NEHME"],
-                SGA: ["Subsecretaria de Gestão Administrativa - SGA", "ANTÔNIO FRANCISCO DE SOUZA", "FERNANDA DIAS FERNANDES", "Antonio Weverson Gomes dos Santos"],
-                SE: ["Secretaria-Executiva- SE","MARCOS GONZAGA DE LIMA", "ANA CRISTINA SOUZA DA SILVA"],
-                COR: ["Corregedoria-COR","FABRIZIA DE LIMA", "LUIZA DALVA RODRIGUES PAIVA"],
-                CONJUR: ["Consultoria Jurídica- CONJUR","AMANDA PRICILA ESTRELA BIZINOTO FELTRIM", "THIAGO RAFAEL FAGUNDES"],
-                AECI: ["Assessoria Especial de Controle Interno- AECI","RUTH MARIANA LIMA CORDEIRO"],
-                GM: ["Gabinete do Ministro - GM","GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO"],
-                CNE: ["Conselho Nacional de Educação- CNE","DANIEL ARAGAO PARENTE VALENTIM"],
-                SEGAPE: ["Secretaria de Gestão da Informação, Inovação e Avaliação de Políticas Educacionais (Segape)","Cláudia Rezende Medeiros Passsetto"]
-        };
+        function autotramitar() {
+            document.getElementById("autotramitar").addEventListener("click", function () {
+                let select = document.getElementById("secretariasList");
+                let secretariaSelecionada = select.value;
+                let nomesSecretaria = {
+                    SESU: ["Secretaria de Educação Superior- GABINETE/SESU","GRECE MARIA SOUSA CARDOSO", "HELOISA SANTOS OLIVEIRA", "ELIZABETH RODRIGUES MARTINS ROCHA SILVA", "KENYA REIS SILVA DIAS"],
+                    SERES: ["Secretaria de Regulação e Supervisão da Educação Superior- SERES","OTAVIO PEREIRA DE CARVALHO", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA"],
+                    SETEC: ["Secretaria de Educação Profissional e Tecnológica- SETEC","MARINA RAMOS VASCONCELOS RADA", "KATARINA EZILDA FERREIRA SANTIAGO", "NAYARA DE PADUA RESENDE"],
+                    SEB: ["Secretaria de Educação Básica- SEB","PAULA GOMES FRANCA", "ELMA CLARA QUEIROZ RAMOS SIQUEIRA"],
+                    SASE: ["Secretaria de Articulação com os Sistemas de Ensino- SASE","IVONE COSTA DE OLIVEIRA", "ROGERIO DE JESUS COSTA SOUSA"],
+                    SECADI: ["Secretaria de Educação Continuada, Alfabetização de Jovens e Adultos, Diversidade e Inclusão- SECADI","ANTONIO DE MELO SANTOS", "ROBSON RODRIGUES DE OLIVEIRA"],
+                    STIC: ["Subsecretaria de Tecnologia da Informação e Comunicação- STIC","BRUNO CORREA MIRANDA", "RAPHAEL ZERLOTTINI DOS REIS"],
+                    SPO: ["Subsecretaria de Planejamento e Orçamento- SPO","LUCIANA NUNES DE OLIVEIRA", "JUNIA LAGOEIRO DUTRA NEHME"],
+                    SGA: ["Subsecretaria de Gestão Administrativa - SGA", "ANTÔNIO FRANCISCO DE SOUZA", "FERNANDA DIAS FERNANDES", "Antonio Weverson Gomes dos Santos"],
+                    SE: ["Secretaria-Executiva- SE","MARCOS GONZAGA DE LIMA", "ANA CRISTINA SOUZA DA SILVA"],
+                    COR: ["Corregedoria-COR","FABRIZIA DE LIMA", "LUIZA DALVA RODRIGUES PAIVA"],
+                    CONJUR: ["Consultoria Jurídica- CONJUR","AMANDA PRICILA ESTRELA BIZINOTO FELTRIM", "THIAGO RAFAEL FAGUNDES"],
+                    AECI: ["Assessoria Especial de Controle Interno- AECI","RUTH MARIANA LIMA CORDEIRO"],
+                    GM: ["Gabinete do Ministro - GM","GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO"],
+                    CNE: ["Conselho Nacional de Educação- CNE","DANIEL ARAGAO PARENTE VALENTIM"],
+                    SEGAPE: ["Secretaria de Gestão da Informação, Inovação e Avaliação de Políticas Educacionais (Segape)","Cláudia Rezende Medeiros Passsetto"]
+                };
 
-        let nomes = nomesSecretaria[secretariaSelecionada] || [];
-        if (nomes.length === 0) {
-            alert("Selecione uma secretaria válida!");
-            return;
+                let nomes = nomesSecretaria[secretariaSelecionada] || [];
+                if (nomes.length === 0) {
+                    alert("Selecione uma secretaria válida!");
+                    return;
+                }
+
+                // Função para verificar os nomes já adicionados na tabela
+                function getNomesNaTabela() {
+                    let tabela = document.getElementById("ConteudoForm_ConteudoGeral_ConteudoFormComAjax_grdUsuariosUnidades");
+                    if (!tabela) return [];
+
+                    let nomesNaTabela = [];
+                    let spans = tabela.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_grdUsuariosUnidades_lblNomeItem']");
+
+                    spans.forEach(span => {
+                        let nomeCorrigido = span.textContent.trim().replace(" (Unidade)", "");
+                        nomesNaTabela.push(nomeCorrigido);
+                    });
+
+                    return nomesNaTabela;
+                }
+
+                // Função para adicionar um nome
+                function adicionarNome(index = 0) {
+                    if (index >= nomes.length) {
+                        alert("Todos os nomes foram verificados e adicionados!");
+                        return;
+                    }
+
+                    let nomesNaTabela = getNomesNaTabela();
+                    let nome = nomes[index];
+
+                    // Se o nome já foi adicionado, passa para o próximo
+                    if (nomesNaTabela.includes(nome)) {
+                        console.log(`Nome já existe: ${nome}`);
+                        adicionarNome(index + 1); // Chama a função recursivamente para o próximo nome
+                        return;
+                    }
+
+                    let input = document.getElementById("selectize_0");
+                    let botaoAdicionar = document.getElementById("ConteudoForm_ConteudoGeral_ConteudoFormComAjax_btnIncluirUsuario");
+
+                    if (!input || !botaoAdicionar) {
+                        alert("Erro: Elementos necessários não encontrados.");
+                        return;
+                    }
+
+                    input.click();
+                    input.value = nome;
+
+                    let eventInput = new Event("input", { bubbles: true });
+                    input.dispatchEvent(eventInput);
+
+                    setTimeout(() => {
+                        let eventEnter = new KeyboardEvent("keydown", { key: "Enter", keyCode: 13, which: 13, bubbles: true });
+                        input.dispatchEvent(eventEnter);
+
+                        // Clica no botão para adicionar o nome
+                        botaoAdicionar.click(); // Clica no botão para adicionar o nome
+
+                        // Espera a página carregar e aguarda um tempo extra antes de continuar o próximo
+                        setTimeout(() => {
+                            adicionarNome(index + 1); // Chama a função recursivamente para o próximo nome
+                        }, 3000); // Aguarda 3 segundos para garantir que o AJAX tenha terminado
+                    }, 500); // Aguarda 500ms para "Enter" ser disparado
+                }
+
+                // Começa o processo de adicionar os nomes
+                adicionarNome();
+            });
         }
-
-        // Função para verificar os nomes já adicionados na tabela
-        function getNomesNaTabela() {
-            let tabela = document.getElementById("ConteudoForm_ConteudoGeral_ConteudoFormComAjax_grdUsuariosUnidades");
-            if (!tabela) return [];
-
-            let nomesNaTabela = [];
-            let spans = tabela.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_grdUsuariosUnidades_lblNomeItem']");
-            spans.forEach(span => nomesNaTabela.push(span.textContent.trim()));
-
-            return nomesNaTabela;
-        }
-
-        // Função para adicionar um nome
-        function adicionarNome(index = 0) {
-            if (index >= nomes.length) {
-                alert("Todos os nomes foram verificados e adicionados!");
-                return;
-            }
-
-            let nomesNaTabela = getNomesNaTabela();
-            let nome = nomes[index];
-
-            // Se o nome já foi adicionado, passa para o próximo
-            if (nomesNaTabela.includes(nome)) {
-                console.log(`Nome já existe: ${nome}`);
-                adicionarNome(index + 1); // Chama a função recursivamente para o próximo nome
-                return;
-            }
-
-            let input = document.getElementById("selectize_0");
-            let botaoAdicionar = document.getElementById("ConteudoForm_ConteudoGeral_ConteudoFormComAjax_btnIncluirUsuario");
-
-            if (!input || !botaoAdicionar) {
-                alert("Erro: Elementos necessários não encontrados.");
-                return;
-            }
-
-            input.click();
-            input.value = nome;
-
-            let eventInput = new Event("input", { bubbles: true });
-            input.dispatchEvent(eventInput);
-
-            setTimeout(() => {
-                let eventEnter = new KeyboardEvent("keydown", { key: "Enter", keyCode: 13, which: 13, bubbles: true });
-                input.dispatchEvent(eventEnter);
-
-                // Clica no botão para adicionar o nome
-                botaoAdicionar.click(); // Clica no botão para adicionar o nome
-
-                // Espera a página carregar e aguarda um tempo extra antes de continuar o próximo
-                setTimeout(() => {
-                    adicionarNome(index + 1); // Chama a função recursivamente para o próximo nome
-                }, 3000); // Aguarda 3 segundos para garantir que o AJAX tenha terminado
-            }, 500); // Aguarda 500ms para "Enter" ser disparado
-        }
-
-        // Começa o processo de adicionar os nomes
-        adicionarNome();
-    });
-}
 
 
         // Adiciona o painel no local correto
