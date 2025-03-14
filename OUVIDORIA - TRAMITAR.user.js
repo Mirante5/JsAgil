@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OUVIDORIA - TRAMITAR
 // @namespace    http://tampermonkey.net/
-// @version      5.0
+// @version      5.1
 // @description  Preenche a data automaticamente, adiciona uma aba de resposta e pontos focais, e preenche automaticamente os campos relacionados às secretarias.
 // @author       Lucas
 // @match        https://falabr.cgu.gov.br/Manifestacao/TramitarManifestacao.aspx?*
@@ -59,7 +59,7 @@
                 `III - no caso de solicitação, informação sobre a possibilidade, a forma e o meio de atendimento à solicitação;\n\n` +
                 `IV - no caso de sugestão, manifestação do gestor sobre a possibilidade de sua adoção, informando o período estimado de tempo necessário à sua implementação, quando couber; e\n\n` +
                 `V - no caso de denúncia, informação sobre o seu encaminhamento às unidades apuratórias competentes ou sobre o seu arquivamento.\n\n` +
-                `Em caso de dúvidas favor contatar: lucasmiranda@mec.gov.br\n\n` +
+                `Em caso de dúvidas por favor entrar em contato no telefone: (61) 2022-2595\n\n` +
                 `Caso a manifestação tenha sido encaminhada de forma equivocada a essa Unidade, favor restituí-la à Ouvidoria imediatamente.\n\n` +
                 `Atenciosamente,\n\n` +
                 `Ouvidoria do Ministério da Educação`;
