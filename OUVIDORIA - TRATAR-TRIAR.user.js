@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OUVIDORIA - TRATAR/TRIAR
 // @namespace    http://tampermonkey.net/
-// @version      5.0
+// @version      6.0
 // @description  Ajusta a exibição de prazos e categoria, permite configurar a quantidade de itens.
 // @author       Lucas
 // @match        *://*falabr.cgu.gov.br/Manifestacao/TratarManifestacoes*
@@ -9,6 +9,8 @@
 // @grant        none
 // @downloadURL  https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20TRATAR-TRIAR.user.js
 // @updateURL    https://github.com/Mirante5/JsAgil/raw/refs/heads/main/OUVIDORIA%20-%20TRATAR-TRIAR.user.js
+// @require      https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js
+// @grant        none
 // ==/UserScript==
 
 (function () {
@@ -312,6 +314,171 @@
             ajustarCoresDeSituacao();
         }
     }
+
+    let chart = null;
+    const storageKey = 'graficoPrioridades';
+
+    function salvarGraficoNoLocalStorage(dadosNovos) {
+        // Inicializa com estrutura padrão se não houver dados salvos
+        let dadosSalvos = recuperarDadosDoLocalStorage() || { demandasPorData: {}, totalDemandasPorData: {}, data: new Date().toISOString() };
+        let dataAtual = new Date().toISOString().split('T')[0]; // e.g., "2023-10-05"
+        let horaAtualStr = new Date().getHours().toString(); // e.g., "10"
+
+        // Garantir que demandasPorData exista
+        if (!dadosSalvos.demandasPorData) {
+            dadosSalvos.demandasPorData = {};
+        }
+        // Garantir que totalDemandasPorData exista
+        if (!dadosSalvos.totalDemandasPorData) {
+            dadosSalvos.totalDemandasPorData = {};
+        }
+
+        // Garantir que os objetos para a data atual estejam inicializados
+        if (!dadosSalvos.demandasPorData[dataAtual]) {
+            dadosSalvos.demandasPorData[dataAtual] = {};
+        }
+        if (!dadosSalvos.totalDemandasPorData[dataAtual]) {
+            dadosSalvos.totalDemandasPorData[dataAtual] = {};
+        }
+
+        const demandasHora = dadosNovos.demandasPorHora[horaAtualStr];
+        if (demandasHora) {
+            dadosSalvos.demandasPorData[dataAtual][horaAtualStr] = demandasHora;
+        }
+        dadosSalvos.totalDemandasPorData[dataAtual][horaAtualStr] = dadosNovos.totalDemandas;
+
+        dadosSalvos.data = new Date().toISOString();
+        localStorage.setItem(storageKey, JSON.stringify(dadosSalvos));
+    }
+
+    function recuperarDadosDoLocalStorage() {
+        const dados = localStorage.getItem(storageKey);
+        return dados ? JSON.parse(dados) : null;
+    }
+
+    function contarDemandasPorHoraECategoria() {
+        let horaAtual = new Date().getHours().toString();
+        const demandasPorHora = { [horaAtual]: { critica: 0, alta: 0, media: 0, baixa: 0, semclass: 0 } };
+
+        document.querySelectorAll('button').forEach(button => {
+            const texto = button.innerHTML.trim().toLowerCase();
+
+            if (texto.includes('crítica')) demandasPorHora[horaAtual].critica++;
+            else if (texto.includes('alta')) demandasPorHora[horaAtual].alta++;
+            else if (texto.includes('média')) demandasPorHora[horaAtual].media++;
+            else if (texto.includes('baixa')) demandasPorHora[horaAtual].baixa++;
+            else if (texto.includes('prioridade') || texto.includes('sem classificação')) demandasPorHora[horaAtual].semclass++;
+        });
+
+        return demandasPorHora;
+    }
+
+    function pegarTotalDemandas() {
+        const totalElement = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_pagTriagem_ctl03_TotalItemsLabel');
+        return totalElement ? parseInt(totalElement.innerText.trim()) || 0 : 0;
+    }
+
+    function criarGrafico(demandasPorData, totalDemandasPorData) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 400;
+        canvas.height = 400;
+        canvas.style.position = 'fixed';
+        canvas.style.top = '100px';
+        canvas.style.right = '5px';
+        canvas.style.zIndex = '1000';
+        document.body.appendChild(canvas);
+
+        var ctx = canvas.getContext('2d');
+
+        const dataAtual = new Date().toISOString().split('T')[0];
+        const demandasHoje = demandasPorData[dataAtual] || {};
+        const totalHoje = totalDemandasPorData[dataAtual] || {};
+        const horas = Array.from({ length: 24 }, (_, i) => i.toString()); // "0" to "23"
+        const categorias = ['critica', 'alta', 'media', 'baixa', 'semclass'];
+
+        const data = categorias.map(categoria => horas.map(hora => demandasHoje[hora]?.[categoria] || 0));
+
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: horas.map(hora => `${hora}:00`),
+                datasets: categorias.map((categoria, index) => ({
+                    label: categoria.charAt(0).toUpperCase() + categoria.slice(1),
+                    data: data[index],
+                    borderColor: ['red', 'yellow', 'green', 'blue', 'purple'][index],
+                    fill: false,
+                    tension: 0.1
+                })).concat([{
+                    label: 'Total de Demandas',
+                    data: horas.map(hora => totalHoje[hora] || 0),
+                    borderColor: 'black',
+                    fill: false,
+                    tension: 0.1,
+                    borderDash: [5, 5]
+                }])
+            },
+            options: {
+                responsive: false,
+                plugins: {
+                    legend: { display: true },
+                    title: { display: true, text: 'Demandas por Hora e Categoria - ' + dataAtual }
+                },
+                scales: {
+                    x: { title: { display: true, text: 'Hora' } },
+                    y: { beginAtZero: true, title: { display: true, text: 'Número de Demandas' } }
+                }
+            }
+        });
+    }
+
+    function atualizarGrafico() {
+        const totalDemandas = pegarTotalDemandas();
+        const demandasPorHora = contarDemandasPorHoraECategoria();
+        salvarGraficoNoLocalStorage({ demandasPorHora, totalDemandas });
+        const dadosSalvos = recuperarDadosDoLocalStorage();
+        if (!chart) {
+            criarGrafico(dadosSalvos.demandasPorData, dadosSalvos.totalDemandasPorData);
+        } else {
+            const dataAtual = new Date().toISOString().split('T')[0];
+            const demandasHoje = dadosSalvos.demandasPorData[dataAtual] || {};
+            const totalHoje = dadosSalvos.totalDemandasPorData[dataAtual] || {};
+            const horas = Array.from({ length: 24 }, (_, i) => i.toString());
+            const categorias = ['critica', 'alta', 'media', 'baixa', 'semclass'];
+            const data = categorias.map(categoria => horas.map(hora => demandasHoje[hora]?.[categoria] || 0));
+            categorias.forEach((categoria, index) => {
+                chart.data.datasets[index].data = data[index];
+            });
+            chart.data.datasets[5].data = horas.map(hora => totalHoje[hora] || 0);
+            chart.update();
+        }
+    }
+
+    function verificarMudancaDeHora() {
+        let ultimaHora = new Date().getHours();
+
+        setInterval(() => {
+            let horaAtual = new Date().getHours();
+
+            if (horaAtual !== ultimaHora) {
+                console.log(`Mudança de hora detectada: ${ultimaHora} -> ${horaAtual}`);
+                atualizarGrafico();
+                ultimaHora = horaAtual;
+            }
+        }, 60000); // Verifica a cada minuto
+    }
+
+    const observer1 = new MutationObserver(() => {
+        atualizarGrafico();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+
+    async function init() {
+        setTimeout(() => { atualizarGrafico(); }, 2000);
+        verificarMudancaDeHora();
+    }
+
+    setTimeout(init, 10000);
 
     // Aguardar o carregamento da página
     function aguardarCarregamento() {
