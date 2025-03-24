@@ -135,7 +135,7 @@
                 CONJUR: ["Consultoria Jurídica- CONJUR","AMANDA PRICILA ESTRELA BIZINOTO FELTRIM", "THIAGO RAFAEL FAGUNDES"],
                 AECI: ["Assessoria Especial de Controle Interno- AECI","RUTH MARIANA LIMA CORDEIRO"],
                 GM: ["Gabinete do Ministro - GM","GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO"],
-                CNE: ["Conselho Nacional de Educação- CNE","DANIEL ARAGAO PARENTE VALENTIM"],
+                CNE: ["Conselho Nacional de Educação- CNE","DANIEL ARAGAO PARENTE VALENTIM","MARCELA ARAUJO BASILIO FRANCA PAVETITS","LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"],
                 SEGAPE: ["Secretaria de Gestão da Informação, Inovação e Avaliação de Políticas Educacionais (Segape)","Cláudia Rezende Medeiros Passsetto"]
             };
 
@@ -170,7 +170,7 @@
                     CONJUR: ["Consultoria Jurídica- CONJUR","AMANDA PRICILA ESTRELA BIZINOTO FELTRIM", "THIAGO RAFAEL FAGUNDES"],
                     AECI: ["Assessoria Especial de Controle Interno- AECI","RUTH MARIANA LIMA CORDEIRO"],
                     GM: ["Gabinete do Ministro - GM","GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO"],
-                    CNE: ["Conselho Nacional de Educação- CNE","DANIEL ARAGAO PARENTE VALENTIM"],
+                    CNE: ["Conselho Nacional de Educação- CNE","DANIEL ARAGAO PARENTE VALENTIM","MARCELA ARAUJO BASILIO FRANCA PAVETITS","LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"],
                     SEGAPE: ["Secretaria de Gestão da Informação, Inovação e Avaliação de Políticas Educacionais (Segape)","Cláudia Rezende Medeiros Passsetto"]
                 };
 
