@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OUVIDORIA - TRATAR/TRIAR
 // @namespace    http://tampermonkey.net/
-// @version      6.0
+// @version      6.1
 // @description  Ajusta a exibição de prazos e categoria, permite configurar a quantidade de itens.
 // @author       Lucas
 // @match        *://*falabr.cgu.gov.br/Manifestacao/TratarManifestacoes*
@@ -131,7 +131,7 @@
 
             const prazoData = ajustarDataParaDiaUtil(prazo, 0);
             const cobrancaData = ajustarDataParaDiaUtil(prazo, -5);
-            const cobrancaImprorrogavelData = ajustarDataParaDiaUtil(prazo, -2);
+            const cobrancaImprorrogavelData = ajustarDataParaDiaUtil(prazo, -5);
             const improrrogavelData = ajustarDataParaDiaUtil(prazo, 31);
             const tramitarData = ajustarDataTramitar(prazo, -10);
 
