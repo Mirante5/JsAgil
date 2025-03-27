@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         OUVIDORIA - TRATAR/TRIAR (Aprimorado)
+// @name         OUVIDORIA - TRATAR/TRIAR
 // @namespace    http://tampermonkey.net/
 // @version      6.0
 // @description  Ajusta a exibição de prazos e categoria, com menu de configuração estilizado e gráfico com toggle.
