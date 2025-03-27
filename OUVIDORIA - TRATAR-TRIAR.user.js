@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         OUVIDORIA - TRATAR/TRIAR
+// @name         OUVIDORIA - TRATAR/TRIAR (Aprimorado)
 // @namespace    http://tampermonkey.net/
-// @version      6.1
-// @description  Ajusta a exibição de prazos e categoria, permite configurar a quantidade de itens.
+// @version      6.0
+// @description  Ajusta a exibição de prazos e categoria, com menu de configuração estilizado e gráfico com toggle.
 // @author       Lucas
 // @match        *://*falabr.cgu.gov.br/Manifestacao/TratarManifestacoes*
 // @match        *://*falabr.cgu.gov.br/Manifestacao/TriarManifestacoes*
@@ -16,218 +16,275 @@
 (function () {
     'use strict';
 
-    // Ajusta o número de registros por página
-    function ajustarItensPorPagina(qtdItens) {
-        const input = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_pagTriagem_ctl03_txtTamanhoPagina');
-        const botao = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_pagTriagem_ctl03_btnAlterarTamanhoPagina');
-        if (input && botao) {
-            input.value = qtdItens;
-            botao.click();
-        }
-    }
-
-    // Ajusta as cores de fundo das manifestações com base na situação
-    function ajustarCoresDeSituacao() {
-        const cores = {
-            "Complementação Solicitada": { fundo: "yellow", texto: "black" },
-            "Complementada": { fundo: "green", texto: "white" },
-            "Prorrogada": { fundo: "red", texto: "white" }
-        };
-
-        document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblSituacaoManifestacao']").forEach(span => {
-            let situacao = span.textContent.trim();
-            if (cores[situacao]) {
-                span.style.backgroundColor = cores[situacao].fundo;
-                span.style.color = cores[situacao].texto;
-                span.style.padding = "3px 5px";
-                span.style.borderRadius = "5px";
-                span.style.display = "inline-block";
-            }
-        });
-    }
-
-    // Lista de feriados fixos (adicione mais se necessário)
-    const feriados = [
-        "01/01/2025", // Confraternização Universal
-        "03/03/2025", // Carnaval
-        "04/03/2025", // Carnaval
-        "18/04/2025", // Sexta-feira Santa
-        "21/04/2025", // Tiradentes
-        "01/05/2025", // Dia do Trabalho
-        "19/06/2025", // Corpus Christi
-        "28/10/2025", // Dia do Servidor Publico
-        "20/11/2025", // Consciencia Negra
-        "25/12/2025" // Natal
-    ].map(data => {
-        let partes = data.split('/');
-        return new Date(partes[2], partes[1] - 1, partes[0]).getTime();
-    });
-
-    // Função para verificar se uma data é feriado
-    function ehFeriado(data) {
-        return feriados.includes(data.getTime());
-    }
-
-    // Ajusta a data, garantindo que caia em um dia útil
-    function ajustarDataTramitar(dataString, dias) {
-        let partes = dataString.split('/');
-        if (partes.length !== 3) return null;
-
-        let data = new Date(partes[2], partes[1] - 1, partes[0]);
-        data.setDate(data.getDate() + dias);
-
-        // Se cair no sábado ou domingo, ajusta para sexta-feira
-        if (data.getDay() === 6) data.setDate(data.getDate() - 1);
-        if (data.getDay() === 0) data.setDate(data.getDate() + 1);
-
-        return data; // Retorna como um objeto Date
-    }
-
-    // Função para contar apenas dias úteis, ignorando feriados
-    function calcularDiasUteis(dataInicio, dataFim) {
-        let diasUteis = 0;
-        let dataAtual = new Date(dataInicio);
-
-        while (dataAtual < dataFim) {
-            dataAtual.setDate(dataAtual.getDate() + 1);
-            let diaSemana = dataAtual.getDay();
-            if (diaSemana !== 0 && diaSemana !== 6 && !ehFeriado(dataAtual)) {
-                diasUteis++;
-            }
-        }
-
-        return diasUteis;
-    }
-
-    // Função para ajustar data garantindo que caia em um dia útil e não seja feriado
-    function ajustarDataParaDiaUtil(dataString, dias) {
-        let partes = dataString.split('/');
-        if (partes.length !== 3) return null;
-
-        let data = new Date(partes[2], partes[1] - 1, partes[0]);
-        let diasUteisContados = 0;
-
-        while (diasUteisContados < Math.abs(dias)) {
-            data.setDate(data.getDate() + (dias > 0 ? 1 : -1));
-            let diaSemana = data.getDay();
-            if (diaSemana !== 0 && diaSemana !== 6 && !ehFeriado(data)) {
-                diasUteisContados++;
-            }
-        }
-
-        // Se cair em um feriado, ajusta para o próximo dia útil
-        while (ehFeriado(data) || data.getDay() === 0 || data.getDay() === 6) {
-            data.setDate(data.getDate() + 1);
-        }
-
-        return data; // Retorna como um objeto Date
-    }
-
-    // Adiciona informações de prazo nas manifestações
-    function adicionarInformacoesDePrazo() {
-        document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblPrazoResposta']").forEach((span, index) => {
-            let prazo = span.textContent.trim();
-            if (!prazo || prazo.includes("Primeira Prorrogação")) return;
-
-            const prazoData = ajustarDataParaDiaUtil(prazo, 0);
-            const cobrancaData = ajustarDataParaDiaUtil(prazo, -5);
-            const cobrancaImprorrogavelData = ajustarDataParaDiaUtil(prazo, -5);
-            const improrrogavelData = ajustarDataParaDiaUtil(prazo, 31);
-            const tramitarData = ajustarDataTramitar(prazo, -10);
-
-
-            if (!tramitarData || !cobrancaData || !improrrogavelData || !cobrancaImprorrogavelData) return;
-
-            // Calcula corretamente os dias úteis entre a cobrança e a prorrogação
-            let diasUteisCobranca = calcularDiasUteis(cobrancaData, prazoData);
-            let diasUteisCobrancaImprorrogavel = calcularDiasUteis(cobrancaImprorrogavelData, prazoData);
-
-            // Obtenha a situação do item correspondente (usando o mesmo index)
-            const situacaoSpan = document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblSituacaoManifestacao']")[index];
-            const situacao = situacaoSpan ? situacaoSpan.textContent.trim() : "";
-
-            // Lógica para verificar a situação e exibir o conteúdo apropriado
-            if (situacao === "Prorrogada") {
-                // Exibe somente a primeira prorrogação e a cobrança
-                span.innerHTML = `
-                <b>${tramitarData.toLocaleDateString('pt-BR')}</b><br>
-                Cobrança em:<b> ${cobrancaImprorrogavelData.toLocaleDateString('pt-BR')} </b> [${diasUteisCobrancaImprorrogavel} dias úteis]<br>
-                Prazo Final em:<b> ${prazoData.toLocaleDateString('pt-BR')} </b>
-            `;
-        } else {
-            // Exibe todos os prazos
-            span.innerHTML = `
-                <b>${tramitarData.toLocaleDateString('pt-BR')}</b><br>
-                Cobrança em:<b> ${cobrancaData.toLocaleDateString('pt-BR')} </b> [${diasUteisCobranca} dias úteis]<br>
-                Prorrogar em:<b> ${prazoData.toLocaleDateString('pt-BR')} </b><br>
-                Improrrogável em:<b> ${improrrogavelData.toLocaleDateString('pt-BR')} </b>
-            `;
-        }
-    });
-}
-
-    //remove opção de clicar
-    function removerHrefLinksEspecificos() {
-        document.querySelectorAll('[id^="ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lnkNumero_"]').forEach(link => {
-            link.removeAttribute('href');
-        // Adiciona evento de clique para copiar o texto
-        link.addEventListener('click', () => {
-            navigator.clipboard.writeText(link.textContent.trim())
-                .then(() => {
-                    let msg = document.querySelector('#msg-copiado');
-                    if (!msg) {
-                        msg = document.createElement('div');
-                        msg.id = 'msg-copiado';
-                        msg.style.position = 'absolute';
-                        msg.style.top = '100%';
-                        msg.style.left = '50%';
-                        msg.style.transform = 'translateX(-50%)';
-                        msg.style.background = 'black';
-                        msg.style.color = 'white';
-                        msg.style.padding = '5px';
-                        msg.style.borderRadius = '5px';
-                        msg.style.fontSize = '12px';
-                        msg.style.whiteSpace = 'nowrap';
-                        link.appendChild(msg);
-                    }
-                    msg.textContent = 'Texto copiado!';
-                    setTimeout(() => msg.remove(), 250);
-                })
-                .catch(err => console.error('Erro ao copiar:', err));
-        }, { once: true });
-    });
-}
-
-    // Observa mudanças na página para reaplicar modificações
-    const observer = new MutationObserver(() => {
-        if (localStorage.getItem('funcionalidadesAtivadas') !== 'false') {
-            removerHrefLinksEspecificos();
-            adicionarInformacoesDePrazo();
-            ajustarCoresDeSituacao();
-        }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    // Cria o ícone de engrenagem
-    function criarIconeEngrenagem() {
-        const gearIcon = document.createElement('div');
-        gearIcon.id = 'gearIcon';
-        gearIcon.style.cssText = `
+    /* =====================================================
+       CSS Dinâmico para o Menu de Configuração e Gráfico
+    ====================================================== */
+    const style = document.createElement('style');
+    style.textContent = `
+        /* Painel de configuração */
+        #configPanel {
             position: fixed;
-            bottom: 10px;
+            top: 10%;
             right: 10px;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            z-index: 10000;
+            width: 320px;
+            font-family: sans-serif;
+            display: none;
+        }
+        #configPanel h3 {
+            margin-top: 0;
+            text-align: center;
+        }
+        #configPanel label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        #configPanel input[type="number"] {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #configPanel button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #007BFF;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        #configPanel button:hover {
+            background: #0056b3;
+        }
+        /* Ícone de engrenagem */
+        #gearIcon {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
             width: 50px;
             height: 50px;
-            background-color: #007BFF;
+            background: #007BFF;
             color: white;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             font-size: 24px;
-        `;
+            z-index: 10000;
+        }
+        /* Container do gráfico */
+        #chartContainer {
+            position: fixed;
+            top: 350px;
+            right: 1px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 9999;
+            display: none;
+            width: 390px;
+        }
+        #chartHeader {
+            background: #007BFF;
+            color: white;
+            padding: 5px;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        #chartHeader span {
+            font-weight: bold;
+        }
+        #chartHeader button {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        #chartContent {
+            padding: 10px;
+        }
+    `;
+    document.head.appendChild(style);
+
+    /* =====================================================
+       CONFIGURAÇÕES E VARIÁVEIS GLOBAIS
+    ====================================================== */
+    const feriados = [
+        "01/01/2025", "03/03/2025", "04/03/2025", "18/04/2025", "21/04/2025",
+        "01/05/2025", "19/06/2025", "28/10/2025", "20/11/2025", "25/12/2025"
+    ].map(data => {
+        const [dia, mes, ano] = data.split('/');
+        return new Date(ano, mes - 1, dia).getTime();
+    });
+    const coresSituacao = {
+        "Complementação Solicitada": { fundo: "yellow", texto: "black" },
+        "Complementada": { fundo: "green", texto: "white" },
+        "Prorrogada": { fundo: "red", texto: "white" }
+    };
+    const storageKey = 'graficoPrioridades';
+    let chart = null;
+
+    /* =====================================================
+       FUNÇÕES DE UTILIDADE
+    ====================================================== */
+    const ehFeriado = data => feriados.includes(data.getTime());
+
+    const ajustarData = (dataStr, dias, paraDiaUtil = false) => {
+        const partes = dataStr.split('/');
+        if (partes.length !== 3) return null;
+        let data = new Date(partes[2], partes[1] - 1, partes[0]);
+        if (!paraDiaUtil) {
+            data.setDate(data.getDate() + dias);
+            // Se cair no sábado ou domingo, ajusta para sexta ou segunda
+            if (data.getDay() === 6) data.setDate(data.getDate() - 1);
+            if (data.getDay() === 0) data.setDate(data.getDate() + 1);
+        } else {
+            let diasUteis = 0;
+            const incremento = dias > 0 ? 1 : -1;
+            while (diasUteis < Math.abs(dias)) {
+                data.setDate(data.getDate() + incremento);
+                if (data.getDay() !== 0 && data.getDay() !== 6 && !ehFeriado(data)) {
+                    diasUteis++;
+                }
+            }
+            while (data.getDay() === 0 || data.getDay() === 6 || ehFeriado(data)) {
+                data.setDate(data.getDate() + 1);
+            }
+        }
+        return data;
+    };
+
+    const calcularDiasUteis = (inicio, fim) => {
+        let diasUteis = 0;
+        let data = new Date(inicio);
+        while (data < fim) {
+            data.setDate(data.getDate() + 1);
+            if (data.getDay() !== 0 && data.getDay() !== 6 && !ehFeriado(data)) {
+                diasUteis++;
+            }
+        }
+        return diasUteis;
+    };
+
+    /* =====================================================
+       FUNÇÕES DE AJUSTE DE INTERFACE
+    ====================================================== */
+    const ajustarItensPorPagina = qtdItens => {
+        const input = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_pagTriagem_ctl03_txtTamanhoPagina');
+        const botao = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_pagTriagem_ctl03_btnAlterarTamanhoPagina');
+        if (input && botao) {
+            input.value = qtdItens;
+            botao.click();
+        }
+    };
+
+    const ajustarCoresDeSituacao = () => {
+        document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblSituacaoManifestacao']")
+            .forEach(span => {
+                const situacao = span.textContent.trim();
+                if (coresSituacao[situacao]) {
+                    Object.assign(span.style, {
+                        backgroundColor: coresSituacao[situacao].fundo,
+                        color: coresSituacao[situacao].texto,
+                        padding: "3px 5px",
+                        borderRadius: "5px",
+                        display: "inline-block"
+                    });
+                }
+            });
+    };
+
+    const adicionarInformacoesDePrazo = () => {
+        document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblPrazoResposta']")
+            .forEach((span, index) => {
+                const prazo = span.textContent.trim();
+                if (!prazo || prazo.includes("Primeira Prorrogação")) return;
+
+                const prazoData = ajustarData(prazo, 0, true);
+                const cobrancaData = ajustarData(prazo, -5, true);
+                const improrrogavelData = ajustarData(prazo, 31, true);
+                const tramitarData = ajustarData(prazo, -10); // Ajuste simples para tramitar
+
+                if (!tramitarData || !cobrancaData || !improrrogavelData) return;
+
+                const diasUteisCobranca = calcularDiasUteis(cobrancaData, prazoData);
+                // Utilizando o mesmo cálculo para cobrança "improrrogável" – se necessário, ajuste conforme regra
+                const situacaoSpan = document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblSituacaoManifestacao']")[index];
+                const situacao = situacaoSpan ? situacaoSpan.textContent.trim() : "";
+
+                if (situacao === "Prorrogada") {
+                    span.innerHTML = `
+                        <b>${tramitarData.toLocaleDateString('pt-BR')}</b><br>
+                        Cobrança em: <b>${cobrancaData.toLocaleDateString('pt-BR')}</b> [${diasUteisCobranca} dias úteis]<br>
+                        Prazo Final: <b>${prazoData.toLocaleDateString('pt-BR')}</b>
+                    `;
+                } else {
+                    span.innerHTML = `
+                        <b>${tramitarData.toLocaleDateString('pt-BR')}</b><br>
+                        Cobrança em: <b>${cobrancaData.toLocaleDateString('pt-BR')}</b> [${diasUteisCobranca} dias úteis]<br>
+                        Prorrogar em: <b>${prazoData.toLocaleDateString('pt-BR')}</b><br>
+                        Improrrogável: <b>${improrrogavelData.toLocaleDateString('pt-BR')}</b>
+                    `;
+                }
+            });
+    };
+
+    const removerHrefLinksEspecificos = () => {
+        document.querySelectorAll('[id^="ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lnkNumero_"]')
+            .forEach(link => {
+                link.removeAttribute('href');
+                link.addEventListener('click', () => {
+                    navigator.clipboard.writeText(link.textContent.trim())
+                        .then(() => {
+                            let msg = link.querySelector('#msg-copiado');
+                            if (!msg) {
+                                msg = document.createElement('div');
+                                msg.id = 'msg-copiado';
+                                Object.assign(msg.style, {
+                                    position: 'absolute',
+                                    top: '100%',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)',
+                                    background: 'black',
+                                    color: 'white',
+                                    padding: '5px',
+                                    borderRadius: '5px',
+                                    fontSize: '12px',
+                                    whiteSpace: 'nowrap'
+                                });
+                                link.appendChild(msg);
+                            }
+                            msg.textContent = 'Texto copiado!';
+                            setTimeout(() => msg.remove(), 250);
+                        })
+                        .catch(err => console.error('Erro ao copiar:', err));
+                }, { once: true });
+            });
+    };
+
+    /* =====================================================
+       PAINEL DE CONFIGURAÇÃO E ÍCONE
+    ====================================================== */
+    const criarIconeEngrenagem = () => {
+        const gearIcon = document.createElement('div');
+        gearIcon.id = 'gearIcon';
         gearIcon.innerHTML = "&#9881;";
         document.body.appendChild(gearIcon);
 
@@ -235,193 +292,171 @@
             const painel = document.getElementById('configPanel');
             painel.style.display = painel.style.display === 'none' ? 'block' : 'none';
         });
-    }
+    };
 
-    // Cria o painel de configurações
-    function criarPainelDeConfiguracao() {
+    const criarPainelDeConfiguracao = () => {
         const painel = document.createElement('div');
         painel.id = 'configPanel';
-        painel.style.cssText = `
-            position: fixed;
-            top: 10%;
-            right: 10px;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            display: none;
-            z-index: 9999;
-            width: 300px;
-            max-width: 90%;
-        `;
         painel.innerHTML = `
             <h3>Configurações</h3>
-
-            <p>Funcionalidade: <span id="statusFuncionalidade">Ativado</span></p>
-            <button id="mudarFuncionalidade">Mudar</button><br><br>
-
-            <label for="qtdItens">Itens por página: </label>
-            <input type="number" id="qtdItens" value="${localStorage.getItem('qtdItens') || 10}" max="50" min="15" /><br><br>
-
-            <button id="salvarConfig">Salvar Itens por página</button>
+            <div style="margin-bottom:10px;">
+                <label>Funcionalidades</label>
+                <button id="toggleFuncionalidades">Habilitar</button>
+            </div>
+            <div style="margin-bottom:10px;">
+                <label>Itens por página</label>
+                <input type="number" id="qtdItens" value="${localStorage.getItem('qtdItens') || 10}" min="15" max="50">
+            </div>
+            <button id="salvarConfig">Salvar Configurações</button>
         `;
         document.body.appendChild(painel);
 
-        document.getElementById('mudarFuncionalidade').addEventListener('click', () => {
-            const statusFuncionalidade = document.getElementById('statusFuncionalidade');
-            const isAtivado = statusFuncionalidade.textContent === 'Ativado';
-            statusFuncionalidade.textContent = isAtivado ? 'Desativado' : 'Ativado';
+        // Atualiza o texto do botão de toggle conforme o estado salvo
+        const funcionalidadesAtivadas = localStorage.getItem('funcionalidadesAtivadas') !== 'false';
+        document.getElementById('toggleFuncionalidades').textContent = funcionalidadesAtivadas ? 'Desabilitar' : 'Habilitar';
 
-            localStorage.setItem('funcionalidadesAtivadas', !isAtivado);
-
-            if (isAtivado) {
-                document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblPrazoResposta']").forEach(span => {
-                    span.innerHTML = span.textContent; // Remove modificações de prazo
-                });
-                document.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_lvwTriagem_lblSituacaoManifestacao']").forEach(span => {
-                    span.removeAttribute('style'); // Remove as cores de fundo
-                });
-            }
-
-            setTimeout(() => location.reload(), 500); // Recarregar a página
+        // Evento de toggle das funcionalidades
+        document.getElementById('toggleFuncionalidades').addEventListener('click', () => {
+            const btn = document.getElementById('toggleFuncionalidades');
+            const ativado = btn.textContent === 'Desabilitar';
+            btn.textContent = ativado ? 'Habilitar' : 'Desabilitar';
+            localStorage.setItem('funcionalidadesAtivadas', !ativado);
         });
 
+        // Salva configurações e aplica
         document.getElementById('salvarConfig').addEventListener('click', () => {
-            const qtdItens = parseInt(document.getElementById('qtdItens').value);
+            const qtdItens = parseInt(document.getElementById('qtdItens').value, 10);
             localStorage.setItem('qtdItens', qtdItens);
             ajustarItensPorPagina(qtdItens);
-
             if (localStorage.getItem('funcionalidadesAtivadas') !== 'false') {
                 adicionarInformacoesDePrazo();
                 ajustarCoresDeSituacao();
             }
+            alert('Configurações salvas!');
         });
+    };
 
-        const funcionalidadesAtivadas = localStorage.getItem('funcionalidadesAtivadas') !== 'false';
-        document.getElementById('statusFuncionalidade').textContent = funcionalidadesAtivadas ? 'Ativado' : 'Desativado';
-        document.getElementById('qtdItens').disabled = !funcionalidadesAtivadas;
-    }
+    /* =====================================================
+       FUNÇÕES DO GRÁFICO COM TOGGLE
+    ====================================================== */
+    const criarContainerDoGrafico = () => {
+        const container = document.createElement('div');
+        container.id = 'chartContainer';
+        container.innerHTML = `
+            <div id="chartHeader">
+                <span>Demandas por Hora</span>
+                <button id="fecharGrafico">&times;</button>
+            </div>
+            <div id="chartContent">
+                <canvas id="graficoCanvas" width="390" height="400"></canvas>
+            </div>
+        `;
+        document.body.appendChild(container);
 
-    // Função principal
-    function executar() {
-        const qtdItens = localStorage.getItem('qtdItens') || 10;
-        ajustarItensPorPagina(qtdItens);
-        criarIconeEngrenagem();
-        criarPainelDeConfiguracao();
+        // Evento para fechar o gráfico
+        document.getElementById('fecharGrafico').addEventListener('click', () => {
+            container.style.display = 'none';
+        });
+    };
 
-        if (localStorage.getItem('funcionalidadesAtivadas') !== 'false') {
-            adicionarInformacoesDePrazo();
-            ajustarCoresDeSituacao();
+    // Função para abrir/reabrir o gráfico (cria se ainda não existir)
+    const toggleGrafico = () => {
+        let container = document.getElementById('chartContainer');
+        if (!container) {
+            criarContainerDoGrafico();
+            container = document.getElementById('chartContainer');
         }
-    }
+        container.style.display = container.style.display === 'none' || container.style.display === '' ? 'block' : 'none';
+    };
 
-    let chart = null;
-    const storageKey = 'graficoPrioridades';
+    /* =====================================================
+       FUNÇÕES DE GRÁFICO (salvar, contar e atualizar)
+    ====================================================== */
+    const salvarGraficoNoLocalStorage = dadosNovos => {
+        const dadosSalvos = recuperarDadosDoLocalStorage() || { demandasPorData: {}, totalDemandasPorData: {} };
+        const dataAtual = new Date().toISOString().split('T')[0];
+        const horaAtual = new Date().getHours().toString();
 
-    function salvarGraficoNoLocalStorage(dadosNovos) {
-        // Inicializa com estrutura padrão se não houver dados salvos
-        let dadosSalvos = recuperarDadosDoLocalStorage() || { demandasPorData: {}, totalDemandasPorData: {}, data: new Date().toISOString() };
-        let dataAtual = new Date().toISOString().split('T')[0]; // e.g., "2023-10-05"
-        let horaAtualStr = new Date().getHours().toString(); // e.g., "10"
+        dadosSalvos.demandasPorData[dataAtual] = dadosSalvos.demandasPorData[dataAtual] || {};
+        dadosSalvos.totalDemandasPorData[dataAtual] = dadosSalvos.totalDemandasPorData[dataAtual] || {};
 
-        // Garantir que demandasPorData exista
-        if (!dadosSalvos.demandasPorData) {
-            dadosSalvos.demandasPorData = {};
+        if (dadosNovos.demandasPorHora[horaAtual]) {
+            dadosSalvos.demandasPorData[dataAtual][horaAtual] = dadosNovos.demandasPorHora[horaAtual];
         }
-        // Garantir que totalDemandasPorData exista
-        if (!dadosSalvos.totalDemandasPorData) {
-            dadosSalvos.totalDemandasPorData = {};
-        }
-
-        // Garantir que os objetos para a data atual estejam inicializados
-        if (!dadosSalvos.demandasPorData[dataAtual]) {
-            dadosSalvos.demandasPorData[dataAtual] = {};
-        }
-        if (!dadosSalvos.totalDemandasPorData[dataAtual]) {
-            dadosSalvos.totalDemandasPorData[dataAtual] = {};
-        }
-
-        const demandasHora = dadosNovos.demandasPorHora[horaAtualStr];
-        if (demandasHora) {
-            dadosSalvos.demandasPorData[dataAtual][horaAtualStr] = demandasHora;
-        }
-        dadosSalvos.totalDemandasPorData[dataAtual][horaAtualStr] = dadosNovos.totalDemandas;
-
+        dadosSalvos.totalDemandasPorData[dataAtual][horaAtual] = dadosNovos.totalDemandas;
         dadosSalvos.data = new Date().toISOString();
         localStorage.setItem(storageKey, JSON.stringify(dadosSalvos));
-    }
+    };
 
-    function recuperarDadosDoLocalStorage() {
+    const recuperarDadosDoLocalStorage = () => {
         const dados = localStorage.getItem(storageKey);
         return dados ? JSON.parse(dados) : null;
-    }
+    };
 
-    function contarDemandasPorHoraECategoria() {
-        let horaAtual = new Date().getHours().toString();
-        const demandasPorHora = { [horaAtual]: { critica: 0, alta: 0, media: 0, baixa: 0, semclass: 0 } };
-
+    const contarDemandasPorHoraECategoria = () => {
+        const horaAtual = new Date().getHours().toString();
+        const demandas = { [horaAtual]: { critica: 0, alta: 0, media: 0, baixa: 0, semclass: 0 } };
         document.querySelectorAll('button').forEach(button => {
-            const texto = button.innerHTML.trim().toLowerCase();
-
-            if (texto.includes('crítica')) demandasPorHora[horaAtual].critica++;
-            else if (texto.includes('alta')) demandasPorHora[horaAtual].alta++;
-            else if (texto.includes('média')) demandasPorHora[horaAtual].media++;
-            else if (texto.includes('baixa')) demandasPorHora[horaAtual].baixa++;
-            else if (texto.includes('prioridade') || texto.includes('sem classificação')) demandasPorHora[horaAtual].semclass++;
+            const txt = button.innerHTML.trim().toLowerCase();
+            if (txt.includes('crítica')) demandas[horaAtual].critica++;
+            else if (txt.includes('alta')) demandas[horaAtual].alta++;
+            else if (txt.includes('média')) demandas[horaAtual].media++;
+            else if (txt.includes('baixa')) demandas[horaAtual].baixa++;
+            else if (txt.includes('prioridade') || txt.includes('sem classificação')) demandas[horaAtual].semclass++;
         });
+        return demandas;
+    };
 
-        return demandasPorHora;
+    const pegarTotalDemandas = () => {
+        const totalEl = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_pagTriagem_ctl03_TotalItemsLabel');
+        return totalEl ? parseInt(totalEl.innerText.trim(), 10) || 0 : 0;
+    };
+
+const criarGrafico = (demandasPorData, totalDemandasPorData) => {
+    let canvas = document.getElementById('graficoCanvas');
+    if (!canvas) {
+        console.warn('Canvas do gráfico não encontrado, criando container...');
+        criarContainerDoGrafico();
+        canvas = document.getElementById('graficoCanvas');
+        if (!canvas) {
+            console.error('Falha ao criar o canvas do gráfico.');
+            return;
+        }
     }
-
-    function pegarTotalDemandas() {
-        const totalElement = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_pagTriagem_ctl03_TotalItemsLabel');
-        return totalElement ? parseInt(totalElement.innerText.trim()) || 0 : 0;
-    }
-
-    function criarGrafico(demandasPorData, totalDemandasPorData) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 400;
-        canvas.height = 400;
-        canvas.style.position = 'fixed';
-        canvas.style.top = '100px';
-        canvas.style.right = '5px';
-        canvas.style.zIndex = '1000';
-        document.body.appendChild(canvas);
-
-        var ctx = canvas.getContext('2d');
-
+    try {
+        const ctx = canvas.getContext('2d');
         const dataAtual = new Date().toISOString().split('T')[0];
         const demandasHoje = demandasPorData[dataAtual] || {};
         const totalHoje = totalDemandasPorData[dataAtual] || {};
-        const horas = Array.from({ length: 24 }, (_, i) => i.toString()); // "0" to "23"
+        const horas = Array.from({ length: 24 }, (_, i) => i.toString());
         const categorias = ['critica', 'alta', 'media', 'baixa', 'semclass'];
-
-        const data = categorias.map(categoria => horas.map(hora => demandasHoje[hora]?.[categoria] || 0));
+        const datasets = categorias.map((categoria, idx) => ({
+            label: categoria.charAt(0).toUpperCase() + categoria.slice(1),
+            data: horas.map(hora => (demandasHoje[hora] ? demandasHoje[hora][categoria] : 0)),
+            borderColor: ['red', 'orange', 'yellow', 'green', 'gray'][idx],
+            fill: false,
+            tension: 0.1
+        }));
+        datasets.push({
+            label: 'Total de Demandas',
+            data: horas.map(hora => totalHoje[hora] || 0),
+            borderColor: 'black',
+            fill: false,
+            tension: 0.1,
+            borderDash: [5, 5]
+        });
 
         chart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: horas.map(hora => `${hora}:00`),
-                datasets: categorias.map((categoria, index) => ({
-                    label: categoria.charAt(0).toUpperCase() + categoria.slice(1),
-                    data: data[index],
-                    borderColor: ['red', 'yellow', 'green', 'blue', 'purple'][index],
-                    fill: false,
-                    tension: 0.1
-                })).concat([{
-                    label: 'Total de Demandas',
-                    data: horas.map(hora => totalHoje[hora] || 0),
-                    borderColor: 'black',
-                    fill: false,
-                    tension: 0.1,
-                    borderDash: [5, 5]
-                }])
+                datasets
             },
             options: {
                 responsive: false,
                 plugins: {
                     legend: { display: true },
-                    title: { display: true, text: 'Demandas por Hora e Categoria - ' + dataAtual }
+                    title: { display: true, text: 'Demandas por Hora - ' + dataAtual }
                 },
                 scales: {
                     x: { title: { display: true, text: 'Hora' } },
@@ -429,9 +464,13 @@
                 }
             }
         });
+    } catch (err) {
+        console.error('Erro ao criar o gráfico:', err);
     }
+};
 
-    function atualizarGrafico() {
+
+    const atualizarGrafico = () => {
         const totalDemandas = pegarTotalDemandas();
         const demandasPorHora = contarDemandasPorHoraECategoria();
         salvarGraficoNoLocalStorage({ demandasPorHora, totalDemandas });
@@ -444,45 +483,78 @@
             const totalHoje = dadosSalvos.totalDemandasPorData[dataAtual] || {};
             const horas = Array.from({ length: 24 }, (_, i) => i.toString());
             const categorias = ['critica', 'alta', 'media', 'baixa', 'semclass'];
-            const data = categorias.map(categoria => horas.map(hora => demandasHoje[hora]?.[categoria] || 0));
-            categorias.forEach((categoria, index) => {
-                chart.data.datasets[index].data = data[index];
+
+            categorias.forEach((categoria, idx) => {
+                chart.data.datasets[idx].data = horas.map(hora => (demandasHoje[hora] ? demandasHoje[hora][categoria] : 0));
             });
             chart.data.datasets[5].data = horas.map(hora => totalHoje[hora] || 0);
             chart.update();
         }
-    }
+    };
 
-    function verificarMudancaDeHora() {
+    const verificarMudancaDeHora = () => {
         let ultimaHora = new Date().getHours();
-
         setInterval(() => {
-            let horaAtual = new Date().getHours();
-
+            const horaAtual = new Date().getHours();
             if (horaAtual !== ultimaHora) {
-                console.log(`Mudança de hora detectada: ${ultimaHora} -> ${horaAtual}`);
+                console.log(`Mudança de hora: ${ultimaHora} -> ${horaAtual}`);
                 atualizarGrafico();
                 ultimaHora = horaAtual;
             }
-        }, 60000); // Verifica a cada minuto
-    }
+        }, 60000);
+    };
 
-    const observer1 = new MutationObserver(() => {
-        atualizarGrafico();
+    /* =====================================================
+       OBSERVADOR DE MUTAÇÕES
+    ====================================================== */
+    const observer = new MutationObserver(() => {
+        if (localStorage.getItem('funcionalidadesAtivadas') !== 'false') {
+            removerHrefLinksEspecificos();
+            adicionarInformacoesDePrazo();
+            ajustarCoresDeSituacao();
+        }
     });
-
     observer.observe(document.body, { childList: true, subtree: true, attributes: true });
 
-    async function init() {
-        setTimeout(() => { atualizarGrafico(); }, 2000);
-        verificarMudancaDeHora();
-    }
+    /* =====================================================
+       FUNÇÃO PRINCIPAL
+    ====================================================== */
+    const executar = () => {
+        const qtdItens = localStorage.getItem('qtdItens') || 10;
+        ajustarItensPorPagina(qtdItens);
+        criarIconeEngrenagem();
+        criarPainelDeConfiguracao();
 
-    setTimeout(init, 10000);
+        // Cria botão para toggle do gráfico
+        const btnGrafico = document.createElement('button');
+        btnGrafico.textContent = 'Exibir Gráfico';
+        Object.assign(btnGrafico.style, {
+            position: 'fixed',
+            bottom: '80px',
+            right: '15px',
+            padding: '10px 15px',
+            background: '#28a745',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            zIndex: '10000'
+        });
+        btnGrafico.addEventListener('click', () => {
+            toggleGrafico();
+            // Atualiza o texto do botão conforme o estado do gráfico
+            btnGrafico.textContent = btnGrafico.textContent === 'Exibir Gráfico' ? 'Fechar Gráfico' : 'Exibir Gráfico';
+        });
+        document.body.appendChild(btnGrafico);
 
-    // Aguardar o carregamento da página
-    function aguardarCarregamento() {
-        return new Promise(resolve => {
+        if (localStorage.getItem('funcionalidadesAtivadas') !== 'false') {
+            adicionarInformacoesDePrazo();
+            ajustarCoresDeSituacao();
+        }
+    };
+
+    const aguardarCarregamento = () =>
+        new Promise(resolve => {
             const intervalo = setInterval(() => {
                 if (document.body) {
                     clearInterval(intervalo);
@@ -490,7 +562,17 @@
                 }
             }, 500);
         });
-    }
 
-    aguardarCarregamento().then(executar);
+    /* =====================================================
+       INIT & ATUALIZAÇÃO DO GRÁFICO
+    ====================================================== */
+    const init = () => {
+        setTimeout(atualizarGrafico, 2000);
+        verificarMudancaDeHora();
+    };
+
+    aguardarCarregamento().then(() => {
+        executar();
+        setTimeout(init, 10000);
+    });
 })();
