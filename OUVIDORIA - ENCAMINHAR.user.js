@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OUVIDORIA - ENCAMINHAR
 // @namespace    http://tampermonkey.net/
-// @version      5.0
+// @version      6.0
 // @description  Adiciona justificativas e atualiza texto de solicitante com base no selectize
 // @author       Lucas
 // @match        https://falabr.cgu.gov.br/Manifestacao/EncaminharManifestacao.aspx?*
