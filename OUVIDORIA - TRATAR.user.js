@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OUVIDORIA - TRATAR
 // @namespace    http://tampermonkey.net/
-// @version      5.0
+// @version      6.0
 // @description  Script para executar ações específicas em elementos do SEI após clicar no link "Iniciar Processo"
 // @author       Lucas
 // @match        https://falabr.cgu.gov.br/Manifestacao/TratarManifestacao.aspx?*
