@@ -122,7 +122,7 @@
             const nomesSecretaria = document.getElementById('nomesSecretaria');
             const listaSecretarias = {
                 SESU: ["Secretaria de Educação Superior- GABINETE/SESU","GRECE MARIA SOUSA CARDOSO", "HELOISA SANTOS OLIVEIRA", "ELIZABETH RODRIGUES MARTINS ROCHA SILVA", "KENYA REIS SILVA DIAS"],
-                SERES: ["Secretaria de Regulação e Supervisão da Educação Superior- SERES","OTAVIO PEREIRA DE CARVALHO", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA"],
+                SERES: ["Secretaria de Regulação e Supervisão da Educação Superior- SERES","DANIEL GOMES DA SILVA FERNANDES", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA"],
                 SETEC: ["Secretaria de Educação Profissional e Tecnológica- SETEC","MARINA RAMOS VASCONCELOS RADA", "KATARINA EZILDA FERREIRA SANTIAGO", "NAYARA DE PADUA RESENDE"],
                 SEB: ["Secretaria de Educação Básica- SEB","PAULA GOMES FRANCA", "ELMA CLARA QUEIROZ RAMOS SIQUEIRA"],
                 SASE: ["Secretaria de Articulação com os Sistemas de Ensino- SASE","IVONE COSTA DE OLIVEIRA", "ROGERIO DE JESUS COSTA SOUSA"],
@@ -157,7 +157,7 @@
                 let secretariaSelecionada = select.value;
                 let nomesSecretaria = {
                     SESU: ["Secretaria de Educação Superior- GABINETE/SESU","GRECE MARIA SOUSA CARDOSO", "HELOISA SANTOS OLIVEIRA", "ELIZABETH RODRIGUES MARTINS ROCHA SILVA", "KENYA REIS SILVA DIAS"],
-                    SERES: ["Secretaria de Regulação e Supervisão da Educação Superior- SERES","OTAVIO PEREIRA DE CARVALHO", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA"],
+                    SERES: ["Secretaria de Regulação e Supervisão da Educação Superior- SERES","DANIEL GOMES DA SILVA FERNANDES", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA"],
                     SETEC: ["Secretaria de Educação Profissional e Tecnológica- SETEC","MARINA RAMOS VASCONCELOS RADA", "KATARINA EZILDA FERREIRA SANTIAGO", "NAYARA DE PADUA RESENDE"],
                     SEB: ["Secretaria de Educação Básica- SEB","PAULA GOMES FRANCA", "ELMA CLARA QUEIROZ RAMOS SIQUEIRA"],
                     SASE: ["Secretaria de Articulação com os Sistemas de Ensino- SASE","IVONE COSTA DE OLIVEIRA", "ROGERIO DE JESUS COSTA SOUSA"],
