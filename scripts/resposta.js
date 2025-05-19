@@ -12,89 +12,97 @@
             }, 500);
         });
     }
-
-    // Função para reanexar o botão caso ele seja removido
-    function observarMudancas() {
-        const observer = new MutationObserver(() => {
-            if (!document.body.contains(btn)) {
-                console.log('Botão desapareceu! Recriando...');
-                const targetDiv = document.querySelector('#ConteudoForm_ConteudoGeral_ConteudoFormComAjax_UpdatePanel3');
-                if (targetDiv) {
-                    targetDiv.appendChild(btn);
-                }
-            }
-        });
-
-        observer.observe(document.body, { childList: true, subtree: true });
-    }
-
-    observarMudancas();
-
-    // Criação do botão "Adicionar dados do cidadão"
-    const btn = document.createElement('input');
-    btn.type = 'submit';
-    btn.value = 'Importar dados do cidadão';
-    btn.className = 'btn btn-sm btn-primary';
-    btn.style.marginLeft = '1px';
-
-    btn.addEventListener('mouseover', function() {
-        btn.style.backgroundColor = '#015298';
-    });
-
-    btn.addEventListener('mouseout', function() {
-        btn.style.backgroundColor = '#337ab7';
-    });
-
-    // Insere o botão dentro da div desejada
-    const targetDiv = document.querySelector('#ConteudoForm_ConteudoGeral_ConteudoFormComAjax_UpdatePanel3');
-    if (targetDiv) {
-        targetDiv.appendChild(btn);
-    }
-
-    // Adiciona evento de clique para preencher o campo de contribuição
-    btn.addEventListener('click', function(event) {
-        event.preventDefault();
-        const documentotipo = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtTipoDocPF')?.textContent || '';
-        const nome = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtNomePF')?.textContent || '';
-        const documento = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtNumeroDocPF')?.textContent || '';
-        const email = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtEmailPF')?.textContent || '';
-
-        const contribuicaoField = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtContribuicao');
-        if (contribuicaoField) {
-            contribuicaoField.value = `Nome: ${nome}\nDocumento (${documentotipo}): ${documento}\nEmail: ${email}`;
+    // Função auxiliar para clicar em um elemento, se ele existir
+    function clickElementById(id) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.click();
+            console.log(`Elemento com ID '${id}' clicado.`);
+        } else {
+            console.warn(`Elemento com ID '${id}' não encontrado.`);
         }
-    });
-
-    // Criação do botão "Adicionar dados do cidadão"
-    const btntxtprorrogacao = document.createElement('input');
-    btntxtprorrogacao.type = 'submit';
-    btntxtprorrogacao.value = 'Texto de Prorrogação';
-    btntxtprorrogacao.className = 'btn btn-sm btn-primary';
-    btntxtprorrogacao.style.marginLeft = '1px';
-    btntxtprorrogacao.style.marginTop = '5px';
-
-    btntxtprorrogacao.addEventListener('mouseover', function() {
-        btntxtprorrogacao.style.backgroundColor = '#015298';
-    });
-
-    btntxtprorrogacao.addEventListener('mouseout', function() {
-        btntxtprorrogacao.style.backgroundColor = '#337ab7';
-    });
-
-    // Insere o botão dentro da div desejada
-    const targetDivprorrogacao = document.querySelector('#ConteudoForm_ConteudoGeral_ConteudoFormComAjax_UpdatePanel3');
-    if (targetDivprorrogacao) {
-        targetDivprorrogacao.appendChild(btntxtprorrogacao);
     }
 
-    // Adiciona evento de clique para preencher o campo de contribuição
-    btntxtprorrogacao.addEventListener('click', function(event) {
-        event.preventDefault();
-        const datalimite = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtPrazoAtendimento')?.textContent || '';
-
-        const contribuicaoField = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtContribuicao');
-        if (contribuicaoField) {
-            contribuicaoField.value = `Devido a ausência de resposta conclusiva, a presente manifestação foi prorrogada. Informamos que o novo prazo de atendimento (improrrogável) é dia ${datalimite}.`;
+    // Função para definir o valor de um campo de texto, se ele existir
+    function setValueById(id, value) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.value = value;
+            console.log(`Valor definido para o campo com ID '${id}': ${value}`);
+        } else {
+            console.warn(`Campo com ID '${id}' não encontrado.`);
         }
-    });
+    }
+
+    // Função para selecionar a opção no <select>
+    function selectOptionByIdAndValue(selectId, value) {
+        const selectElement = document.getElementById(selectId);
+        if (selectElement) {
+            selectElement.value = value; // Define o valor selecionado
+            selectElement.dispatchEvent(new Event('change')); // Dispara o evento 'change'
+            console.log(`Opção com value="${value}" selecionada no <select> com ID '${selectId}'.`);
+        } else {
+            console.warn(`Elemento <select> com ID '${selectId}' não encontrado.`);
+        }
+    }
+
+// Copia a Tags para o campo de Responsável pela resposta
+function copyValueToInput(sourceId, targetId) {
+    const sourceElement = document.getElementById(sourceId);
+    const targetElement = document.getElementById(targetId);
+
+    if (sourceElement && targetElement) {
+        const sourceValue = sourceElement.value.trim(); // Apenas remover espaços extras
+
+        const allowedValues = [
+            "Secretaria de Educação Superior - SESu",
+            "Secretaria de Regulação e Supervisão da Educação Superior - SERES",
+            "Secretaria de Educação Profissional e Tecnológica - SETEC",
+            "Secretaria de Educação Básica - SEB",
+            "Secretaria de Articulação Intersetorial e com os Sistemas de Ensino - SASE",
+            "Secretaria de Educação Continuada, Alfabetização, Diversidade e Inclusão - SECADI",
+            "Subsecretaria de Tecnologia da Informação e Comunicação - STIC",
+            "Subsecretaria de Planejamento e Orçamento - SPO",
+            "Subsecretaria de Gestão Administrativa - SGA",
+            "Secretaria Executiva - SE",
+            "Corregedoria - COR",
+            "Consultoria Jurídica - CONJUR",
+            "Assessoria Especial de Controle Interno - AECI",
+            "Gabinete do Ministro - GM",
+            "Conselho Nacional de Educação - CNE",
+            "Inovação e Avaliação de Políticas Educacionais (Segape)"
+        ];
+
+        // Verifica se o valor do source está na lista de permitidos
+        const match = allowedValues.find(val => sourceValue.includes(val));
+
+        // Se houver correspondência, usa o valor encontrado, senão define "Ouvidoria do Ministério da Educação"
+        targetElement.value = match ? match : "Ouvidoria do Ministério da Educação";
+
+        console.log(`Valor do campo com ID '${sourceId}' copiado para o campo com ID '${targetId}': ${targetElement.value}`);
+    } else {
+        if (!sourceElement) {
+            console.warn(`Elemento fonte com ID '${sourceId}' não encontrado.`);
+        }
+        if (!targetElement) {
+            console.warn(`Elemento alvo com ID '${targetId}' não encontrado.`);
+        }
+    }
+}
+
+// Chamada para copiar o valor
+copyValueToInput(
+    'ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtTags',
+    'ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtResponsavelResposta',
+    'responsavelResposta-input'
+);
+
+    // Realiza as ações desejadas
+    clickElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_rbDemandaConcluidaSim');
+    clickElementById('rbDemandaResolvida-item-0');
+    // Define valores nos campos
+
+    setValueById('txtDtaGeracaoInformar');
+
+// Adicione esta linha onde você deseja definir o valor
 })();

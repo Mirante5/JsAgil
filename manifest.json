@@ -19,15 +19,43 @@
     "activeTab"
   ],
   "host_permissions": [
-    "https://falabr.cgu.gov.br/Manifestacao/TratarManifestacoes",
-    "https://falabr.cgu.gov.br/Manifestacao/TriarManifestacoes",
-    "https://falabr.cgu.gov.br/Manifestacao/TratarManifestacao.aspx?*"
+    "https://falabr.cgu.gov.br/*"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
+      "matches": [
+        "https://falabr.cgu.gov.br/Manifestacao/ArquivarManifestacao.aspx?*"
+      ],
+      "js": ["scripts/arquivar.js"]
+      },
+       {
+      "matches": [
+    "https://falabr.cgu.gov.br/Manifestacao/EncaminharManifestacao.aspx?*"
+      ],
+      "js": ["scripts/encaminhar.js"]
+      },
+      {
+      "matches": [
+        "https://falabr.cgu.gov.br/Manifestacao/ProrrogarManifestacao.aspx?*"
+      ],
+      "js": ["scripts/prorrogar.js"]
+      },
+          {
+      "matches": [
+        "https://falabr.cgu.gov.br/*"
+      ],
+      "js": ["scripts/style.js"]
+      },
+       {
+      "matches": [
+    "https://falabr.cgu.gov.br/Manifestacao/TramitarManifestacao.aspx?*"
+      ],
+      "js": ["scripts/tramitar.js"]
+      },
+          {
       "matches": [
         "https://falabr.cgu.gov.br/Manifestacao/TratarManifestacoes*",
         "https://falabr.cgu.gov.br/Manifestacao/TriarManifestacoes*"
@@ -38,7 +66,7 @@
       "matches": [
     "https://falabr.cgu.gov.br/Manifestacao/TratarManifestacao.aspx?*"
       ],
-      "js": ["scripts/resposta.js"]
+      "js": ["scripts/tratar.js"]
       }
     ]
   }
