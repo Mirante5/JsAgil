@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         OUVIDORIA - STYLE
 // @namespace    http://tampermonkey.net/
-// @version      6.0
+// @version      6.1
 // @description  Personaliza o estilo do loading na página de ouvidoria.
 // @author       You
 // @match        *://*falabr.cgu.gov.br/*
@@ -32,7 +32,7 @@
     // Função para criar o texto "JSÀgil" com animação
     function criarTextoJSAGIL() {
         return `<div style="font-size: 24px; font-weight: bold; color: #fff; margin-top: 5px;">
-                    JS<span id="rotatingO" style="display: inline-block; transition: transform 0.3s ease;">|</span>Àgil 6.0
+                    JS<span id="rotatingO" style="display: inline-block; transition: transform 0.3s ease;">|</span>Àgil 6.1
                 </div>`;
     }
 
