@@ -122,21 +122,22 @@
             const nomesSecretaria = document.getElementById('nomesSecretaria');
             const listaSecretarias = {
                 SESU: ["Secretaria de Educação Superior- GABINETE/SESU","GRECE MARIA SOUSA CARDOSO", "HELOISA SANTOS OLIVEIRA", "ELIZABETH RODRIGUES MARTINS ROCHA SILVA", "KENYA REIS SILVA DIAS"],
-                SERES: ["Secretaria de Regulação e Supervisão da Educação Superior- SERES","DANIEL GOMES DA SILVA FERNANDES", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA"],
+                SERES: ["Secretaria de Regulação e Supervisão da Educação Superior- SERES","WALDO ERICO DE CASTRO NETO", "YURI SOUSA LIMA", "JAQUELINE DE SOUZA ARAUJO FRANCO", "ARACYARA DA CONCEICAO DO NASCIMENTO", "PRISCILLA SOARES DOS SANTOS"],
                 SETEC: ["Secretaria de Educação Profissional e Tecnológica- SETEC","MARINA RAMOS VASCONCELOS RADA", "KATARINA EZILDA FERREIRA SANTIAGO", "NAYARA DE PADUA RESENDE"],
-                SEB: ["Secretaria de Educação Básica- SEB","PAULA GOMES FRANCA", "ELMA CLARA QUEIROZ RAMOS SIQUEIRA"],
+                SEB: ["Secretaria de Educação Básica- SEB","TANIA REGINA LUDOVICO CORREIA BATISTA", "ELMA CLARA QUEIROZ RAMOS SIQUEIRA", "PAULA GOMES FRANCA", "KAROLYNNE DE ARAUJO MOREIRA"],
                 SASE: ["Secretaria de Articulação com os Sistemas de Ensino- SASE","IVONE COSTA DE OLIVEIRA", "ROGERIO DE JESUS COSTA SOUSA"],
                 SECADI: ["Secretaria de Educação Continuada, Alfabetização de Jovens e Adultos, Diversidade e Inclusão- SECADI","ANTONIO DE MELO SANTOS", "ROBSON RODRIGUES DE OLIVEIRA"],
                 STIC: ["Subsecretaria de Tecnologia da Informação e Comunicação- STIC","BRUNO CORREA MIRANDA", "RAPHAEL ZERLOTTINI DOS REIS"],
                 SPO: ["Subsecretaria de Planejamento e Orçamento- SPO","LUCIANA NUNES DE OLIVEIRA", "JUNIA LAGOEIRO DUTRA NEHME"],
-                SGA: ["Subsecretaria de Gestão Administrativa - SGA", "ANTÔNIO FRANCISCO DE SOUZA", "FERNANDA DIAS FERNANDES", "Antonio Weverson Gomes dos Santos"],
+                SGA: ["Subsecretaria de Gestão Administrativa - SGA", "ANTÔNIO FRANCISCO DE SOUZA", "FERNANDA DIAS FERNANDES", "Antonio Weverson Gomes dos Santos", "MARLAN FERREIRA DIAS"],
                 SE: ["Secretaria-Executiva- SE","MARCOS GONZAGA DE LIMA", "ANA CRISTINA SOUZA DA SILVA"],
-                COR: ["Corregedoria-COR","FABRIZIA DE LIMA", "LUIZA DALVA RODRIGUES PAIVA"],
+                COR: ["Corregedoria-COR","FABRIZIA DE LIMA", "LUIZA DALVA RODRIGUES PAIVA", "FERNANDO COSTA DE ALMEIDA", "RAFAEL COELHO DE SOUSA", "RAQUEL GUERRA LOPES DOS SANTOS", "ILA DELAHIS JANSEN VALENTE OLIVEIRA", "MARIA DE FÁTIMA SANTOS VIANA"],
                 CONJUR: ["Consultoria Jurídica- CONJUR","AMANDA PRICILA ESTRELA BIZINOTO FELTRIM", "THIAGO RAFAEL FAGUNDES"],
                 AECI: ["Assessoria Especial de Controle Interno- AECI","RUTH MARIANA LIMA CORDEIRO"],
-                GM: ["Gabinete do Ministro - GM","GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO"],
+                GM: ["Gabinete do Ministro - GM","GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO", "MARIANA NUNES TEODORO"],
                 CNE: ["Conselho Nacional de Educação- CNE","DANIEL ARAGAO PARENTE VALENTIM","MARCELA ARAUJO BASILIO FRANCA PAVETITS","LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"],
-                SEGAPE: ["Secretaria de Gestão da Informação, Inovação e Avaliação de Políticas Educacionais (Segape)","Cláudia Rezende Medeiros Passsetto"]
+                SEGAPE: ["Secretaria de Gestão da Informação, Inovação e Avaliação de Políticas Educacionais (Segape)","Cláudia Rezende Medeiros Passsetto", "VALERIA DA COSTA RODRIGUES ALVES DE LIMA VIEIRA"]
+
             };
 
             const secretariaSelecionada = document.getElementById('secretariasList').value;
@@ -156,22 +157,22 @@
                 let select = document.getElementById("secretariasList");
                 let secretariaSelecionada = select.value;
                 let nomesSecretaria = {
-                    SESU: ["Secretaria de Educação Superior- GABINETE/SESU","GRECE MARIA SOUSA CARDOSO", "HELOISA SANTOS OLIVEIRA", "ELIZABETH RODRIGUES MARTINS ROCHA SILVA", "KENYA REIS SILVA DIAS"],
-                    SERES: ["Secretaria de Regulação e Supervisão da Educação Superior- SERES","DANIEL GOMES DA SILVA FERNANDES", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA"],
-                    SETEC: ["Secretaria de Educação Profissional e Tecnológica- SETEC","MARINA RAMOS VASCONCELOS RADA", "KATARINA EZILDA FERREIRA SANTIAGO", "NAYARA DE PADUA RESENDE"],
-                    SEB: ["Secretaria de Educação Básica- SEB","PAULA GOMES FRANCA", "ELMA CLARA QUEIROZ RAMOS SIQUEIRA"],
-                    SASE: ["Secretaria de Articulação com os Sistemas de Ensino- SASE","IVONE COSTA DE OLIVEIRA", "ROGERIO DE JESUS COSTA SOUSA"],
-                    SECADI: ["Secretaria de Educação Continuada, Alfabetização de Jovens e Adultos, Diversidade e Inclusão- SECADI","ANTONIO DE MELO SANTOS", "ROBSON RODRIGUES DE OLIVEIRA"],
-                    STIC: ["Subsecretaria de Tecnologia da Informação e Comunicação- STIC","BRUNO CORREA MIRANDA", "RAPHAEL ZERLOTTINI DOS REIS"],
-                    SPO: ["Subsecretaria de Planejamento e Orçamento- SPO","LUCIANA NUNES DE OLIVEIRA", "JUNIA LAGOEIRO DUTRA NEHME"],
-                    SGA: ["Subsecretaria de Gestão Administrativa - SGA", "ANTÔNIO FRANCISCO DE SOUZA", "FERNANDA DIAS FERNANDES", "Antonio Weverson Gomes dos Santos"],
-                    SE: ["Secretaria-Executiva- SE","MARCOS GONZAGA DE LIMA", "ANA CRISTINA SOUZA DA SILVA"],
-                    COR: ["Corregedoria-COR","FABRIZIA DE LIMA", "LUIZA DALVA RODRIGUES PAIVA"],
-                    CONJUR: ["Consultoria Jurídica- CONJUR","AMANDA PRICILA ESTRELA BIZINOTO FELTRIM", "THIAGO RAFAEL FAGUNDES"],
-                    AECI: ["Assessoria Especial de Controle Interno- AECI","RUTH MARIANA LIMA CORDEIRO"],
-                    GM: ["Gabinete do Ministro - GM","GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO"],
-                    CNE: ["Conselho Nacional de Educação- CNE","DANIEL ARAGAO PARENTE VALENTIM","MARCELA ARAUJO BASILIO FRANCA PAVETITS","LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"],
-                    SEGAPE: ["Secretaria de Gestão da Informação, Inovação e Avaliação de Políticas Educacionais (Segape)","Cláudia Rezende Medeiros Passsetto"]
+                SESU: ["Secretaria de Educação Superior- GABINETE/SESU","GRECE MARIA SOUSA CARDOSO", "HELOISA SANTOS OLIVEIRA", "ELIZABETH RODRIGUES MARTINS ROCHA SILVA", "KENYA REIS SILVA DIAS"],
+                SERES: ["Secretaria de Regulação e Supervisão da Educação Superior- SERES","WALDO ERICO DE CASTRO NETO", "YURI SOUSA LIMA", "JAQUELINE DE SOUZA ARAUJO FRANCO", "ARACYARA DA CONCEICAO DO NASCIMENTO", "PRISCILLA SOARES DOS SANTOS"],
+                SETEC: ["Secretaria de Educação Profissional e Tecnológica- SETEC","MARINA RAMOS VASCONCELOS RADA", "KATARINA EZILDA FERREIRA SANTIAGO", "NAYARA DE PADUA RESENDE"],
+                SEB: ["Secretaria de Educação Básica- SEB","TANIA REGINA LUDOVICO CORREIA BATISTA", "ELMA CLARA QUEIROZ RAMOS SIQUEIRA", "PAULA GOMES FRANCA", "KAROLYNNE DE ARAUJO MOREIRA"],
+                SASE: ["Secretaria de Articulação com os Sistemas de Ensino- SASE","IVONE COSTA DE OLIVEIRA", "ROGERIO DE JESUS COSTA SOUSA"],
+                SECADI: ["Secretaria de Educação Continuada, Alfabetização de Jovens e Adultos, Diversidade e Inclusão- SECADI","ANTONIO DE MELO SANTOS", "ROBSON RODRIGUES DE OLIVEIRA"],
+                STIC: ["Subsecretaria de Tecnologia da Informação e Comunicação- STIC","BRUNO CORREA MIRANDA", "RAPHAEL ZERLOTTINI DOS REIS"],
+                SPO: ["Subsecretaria de Planejamento e Orçamento- SPO","LUCIANA NUNES DE OLIVEIRA", "JUNIA LAGOEIRO DUTRA NEHME"],
+                SGA: ["Subsecretaria de Gestão Administrativa - SGA", "ANTÔNIO FRANCISCO DE SOUZA", "FERNANDA DIAS FERNANDES", "Antonio Weverson Gomes dos Santos", "MARLAN FERREIRA DIAS"],
+                SE: ["Secretaria-Executiva- SE","MARCOS GONZAGA DE LIMA", "ANA CRISTINA SOUZA DA SILVA"],
+                COR: ["Corregedoria-COR","FABRIZIA DE LIMA", "LUIZA DALVA RODRIGUES PAIVA", "FERNANDO COSTA DE ALMEIDA", "RAFAEL COELHO DE SOUSA", "RAQUEL GUERRA LOPES DOS SANTOS", "ILA DELAHIS JANSEN VALENTE OLIVEIRA", "MARIA DE FÁTIMA SANTOS VIANA"],
+                CONJUR: ["Consultoria Jurídica- CONJUR","AMANDA PRICILA ESTRELA BIZINOTO FELTRIM", "THIAGO RAFAEL FAGUNDES"],
+                AECI: ["Assessoria Especial de Controle Interno- AECI","RUTH MARIANA LIMA CORDEIRO"],
+                GM: ["Gabinete do Ministro - GM","GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO", "MARIANA NUNES TEODORO"],
+                CNE: ["Conselho Nacional de Educação- CNE","DANIEL ARAGAO PARENTE VALENTIM","MARCELA ARAUJO BASILIO FRANCA PAVETITS","LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"],
+                SEGAPE: ["Secretaria de Gestão da Informação, Inovação e Avaliação de Políticas Educacionais (Segape)","Cláudia Rezende Medeiros Passsetto", "VALERIA DA COSTA RODRIGUES ALVES DE LIMA VIEIRA"]
                 };
 
                 let nomes = nomesSecretaria[secretariaSelecionada] || [];
