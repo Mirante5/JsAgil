@@ -2,12 +2,17 @@
   "manifest_version": 3,
   "name": "JSAgil",
   "version": "0.1.0",
+  "update_url": "https://github.com/Mirante5/JsAgil/raw/refs/heads/JSAgil2Extension/update.xml",
   "description": "Otimização de fluxos de trabalho na plataforma Fala.br",
   "author": "Lucas Emiliano",
     "icons": {
     "32": "images/arquivo32-js.png",
     "64": "images/arquivo64-js.png",
     "128": "images/arquivo128-js.png"
+  },
+    "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
   },
   "action": {
   "default_popup": "popup/popup.html",
@@ -22,7 +27,7 @@
     "https://falabr.cgu.gov.br/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "service-worker.js"
   },
   "content_scripts": [
     {
@@ -66,7 +71,7 @@
       "matches": [
     "https://falabr.cgu.gov.br/Manifestacao/TratarManifestacao.aspx?*"
       ],
-      "js": ["scripts/tratar.js"]
+      "js": ["scripts/tratarteste.js"]
       }
     ]
   }
