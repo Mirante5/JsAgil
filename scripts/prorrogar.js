@@ -1,7 +1,7 @@
-(function() {
+(function () {
     'use strict';
 
-    window.addEventListener('load', function() {
+    window.addEventListener('load', async function () {
         const motivoProrrogacaoLabel = document.querySelector('label[for="ConteudoForm_ConteudoGeral_ConteudoFormComAjax_cmbMotivoProrrogacao"]');
         const justificativaInput = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtJustificativaProrrogacao');
 
@@ -15,9 +15,20 @@
             return;
         }
 
-        console.log('Dropdown não encontrado. Criando o elemento...');
+        // Carrega texto do JSON
+        async function carregarConfig() {
+            try {
+                const url = chrome.runtime.getURL('config/text.json');
+                const resp = await fetch(url);
+                return await resp.json();
+            } catch (e) {
+                console.error('Erro ao carregar config/text.json:', e);
+                return null;
+            }
+        }
 
-        const parentNode = motivoProrrogacaoLabel.parentNode;
+        const config = await carregarConfig();
+        const prorrogacoes = config?.Prorrogacao || {};
 
         const labelJustificativa = document.createElement('label');
         labelJustificativa.setAttribute('for', 'justificativasBox');
@@ -29,27 +40,32 @@
         justificativasBox.name = 'justificativasBox';
         justificativasBox.className = 'justificativas-dropdown';
 
+        // opções
         const fragment = document.createDocumentFragment();
-        const justificativas = [
-            { text: 'Selecione uma justificativa...', value: '' },
-            { text: 'Prorrogação', value: `Prezado(a) Senhor(a),\n\n\Informamos que, em conformidade com o previsto no § 1° do art. 22 da Portaria CGU nº 116/2024, informamos que a presente manifestação foi prorrogada, devido a necessidade da Unidade organizacional para a elaboração e emissão de resposta conclusiva.\n\n\Atenciosamente, \n\n\Ouvidoria do Ministério da Educação.` }
-        ];
+        const optDefault = document.createElement('option');
+        optDefault.value = '';
+        optDefault.textContent = 'Selecione uma justificativa...';
+        fragment.appendChild(optDefault);
 
-        justificativas.forEach(({ text, value }) => {
-            const option = document.createElement('option');
-            option.value = value;
-            option.text = text;
-            fragment.appendChild(option);
+        Object.entries(prorrogacoes).forEach(([titulo, texto]) => {
+            const opt = document.createElement('option');
+            opt.value = texto;
+            opt.textContent = titulo;
+            fragment.appendChild(opt);
         });
+
         justificativasBox.appendChild(fragment);
 
-        motivoProrrogacaoLabel.parentNode.appendChild(labelJustificativa);
-        motivoProrrogacaoLabel.parentNode.appendChild(justificativasBox);
+        // Insere elementos
+        const parentNode = motivoProrrogacaoLabel.parentNode;
+        parentNode.appendChild(labelJustificativa);
+        parentNode.appendChild(justificativasBox);
 
-        justificativasBox.addEventListener('change', function() {
+        justificativasBox.addEventListener('change', () => {
             justificativaInput.value = justificativasBox.value || '';
         });
 
+        // Estilo
         if (!document.querySelector('.justificativas-styles')) {
             const style = document.createElement('style');
             style.className = 'justificativas-styles';

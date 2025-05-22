@@ -1,264 +1,196 @@
 (function() {
-    'use strict';
-    //Funcionando quase corretamente, falta apenas quando a pagina é atualizada manter a lista selecionada, auto tramitar e criar uma interface de edição do texto.
+  'use strict';
 
-    // Função para calcular a data -10 dias corridos ajustando finais de semana
-    function calcularDataMenosDezDias() {
-        // Obtém o texto dentro da <span>
-        let dataTexto = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtPrazoAtendimento').innerText.trim();
+  // calcula prazo = hoje -10 dias, ajustando fim de semana
+  function calcularDataMenosDezDias() {
+    const dataTextoElement = document
+      .getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtPrazoAtendimento');
+    if (!dataTextoElement) {
+      console.error('Elemento de data do prazo não encontrado.');
+      const hoje = new Date();
+      // Fallback para hoje se o elemento não existir, apenas para evitar erro total
+      const d = `0${hoje.getDate()}`.slice(-2);
+      const m = `0${hoje.getMonth() + 1}`.slice(-2);
+      return `${d}/${m}/${hoje.getFullYear()}`;
+    }
+    const dataTexto = dataTextoElement.innerText.trim();
+    if (!dataTexto || !dataTexto.includes('/')) {
+        console.error('Formato de data inválido ou data não encontrada:', dataTexto);
+        // Fallback para hoje se a data estiver mal formatada
+        const hoje = new Date();
+        const d = `0${hoje.getDate()}`.slice(-2);
+        const m = `0${hoje.getMonth() + 1}`.slice(-2);
+        return `${d}/${m}/${hoje.getFullYear()}`;
+    }
+    const [dd, mm, yyyy] = dataTexto.split('/');
+    const data = new Date(yyyy, mm - 1, dd); // Mês é 0-indexado
+    data.setDate(data.getDate() - 10);
+    if (data.getDay() === 6) data.setDate(data.getDate() - 1); // Sábado
+    else if (data.getDay() === 0) data.setDate(data.getDate() + 1); // Domingo (ou data.setDate(data.getDate() - 2) se for para segunda anterior)
+    
+    // Ajuste para garantir que caia em dia útil (caso o +1 ou -1 caia no fds de novo - raro com -10d)
+    if (data.getDay() === 6) data.setDate(data.getDate() - 1); 
+    else if (data.getDay() === 0) data.setDate(data.getDate() + 1); // Ou -2 se quiser a sexta anterior
 
-        // Converte o texto para um objeto Date (supondo que esteja no formato DD/MM/YYYY)
-        let partes = dataTexto.split('/');
-        let data = new Date(partes[2], partes[1] - 1, partes[0]); // no formato YYYY-MM-DD sem ser UTC
+    const d = `0${data.getDate()}`.slice(-2);
+    const m = `0${data.getMonth() + 1}`.slice(-2);
+    return `${d}/${m}/${data.getFullYear()}`;
+  }
 
-        // Subtrai 10 dias
-        data.setDate(data.getDate() - 10);
+  async function carregarJSON(path) {
+    try {
+      const url = chrome.runtime.getURL(path);
+      const resp = await fetch(url);
+      if (!resp.ok) {
+        console.error(`Erro ao carregar ${path}: ${resp.status} ${resp.statusText}`);
+        return null;
+      }
+      return await resp.json();
+    } catch (e) {
+      console.error(`Erro carregando ${path}:`, e);
+      return null;
+    }
+  }
 
-        // Ajuste se cair em fim de semana
-        if (data.getDay() === 6) { // Sábado -> Volta para sexta
-            data.setDate(data.getDate() - 1);
-        } else if (data.getDay() === 0) { // Domingo -> Avança para segunda
-            data.setDate(data.getDate() + 1);
-        }
-
-        // Retorna no formato DD/MM/YYYY
-        return `${data.getDate().toString().padStart(2, '0')}/${(data.getMonth() + 1).toString().padStart(2, '0')}/${data.getFullYear()}`;
+  window.addEventListener('load', async function() {
+    const campoData = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtDataTratamento');
+    if (campoData) {
+        campoData.value = calcularDataMenosDezDias();
     }
 
-    window.addEventListener('load', function() {
-        // Insere a data calculada no campo correto
-        const campoData = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtDataTratamento');
-        if (campoData) {
-            campoData.value = calcularDataMenosDezDias();
-        }
+    const campoTags = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtTags');
+    const campoTextoTramitar = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtMensagem');
 
-        // Insere o texto no campo de Tags
-        const campoTags = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtTags');
-        const campoTextoTramitar = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtMensagem');
-        if (campoTextoTramitar) {
-            campoTextoTramitar.value =`À ${campoTags.value} \n\n` +
-                `Senhores pontos focais,  \n\n` +
-                `Encaminhamos a presente manifestação por entendermos tratar-se de matéria afeta a essa Unidade.\n\n` +
-                `Quanto ao tratamento das demandas de Ouvidoria, orientamos que a resposta siga por meio desta Plataforma, até do dia ${calcularDataMenosDezDias()} (20 dias) contendo informações a respeito da possibilidade ou impossibilidade de atendimento da presente manifestação, bem como a forma e os meios para contato do cidadão com a Unidade técnica responsável pela demanda. Em caso de impossibilidade de atendimento dentro do prazo previsto, a manifestação poderá ser prorrogada por igual período, mediante apresentação expressa de justificativa, nos termos do Decreto nº 9492/18 e portaria MEC 1.053/2022.\n\n` +
-                `Ante o exposto, desde já, solicitamos que a resposta disponibilizada, seja redigida em linguagem simples/cidadã, clara, sem siglas ou tecnicismos e concisa, de maneira a possibilitar a compreensão da mensagem pelo receptor, e por fim, recomendamos que observe o previsto no artigo 19 da Portaria da Controladoria-Geral da União n° 581 de 9 de março de 2021.\n\n` +
-                `Art. 19. Na elaboração de respostas conclusivas às manifestações, as unidades do SisOuv observarão o seguinte conteúdo mínimo:\n\n` +
-                `I - no caso de elogio, informação sobre o seu encaminhamento e cientificação ao agente público ou ao responsável pelo serviço público prestado, e à sua chefia imediata;\n\n` +
-                `II - no caso de reclamação, informação objetiva acerca da análise do fato apontado;\n\n` +
-                `III - no caso de solicitação, informação sobre a possibilidade, a forma e o meio de atendimento à solicitação;\n\n` +
-                `IV - no caso de sugestão, manifestação do gestor sobre a possibilidade de sua adoção, informando o período estimado de tempo necessário à sua implementação, quando couber; e\n\n` +
-                `V - no caso de denúncia, informação sobre o seu encaminhamento às unidades apuratórias competentes ou sobre o seu arquivamento.\n\n` +
-                `Em caso de dúvidas por favor entrar em contato no telefone: (61) 2022-2595\n\n` +
-                `Caso a manifestação tenha sido encaminhada de forma equivocada a essa Unidade, favor restituí-la à Ouvidoria imediatamente.\n\n` +
-                `Atenciosamente,\n\n` +
-                `Ouvidoria do Ministério da Educação`;
+    // painel de pontos focais
+    const painel = document.createElement('div');
+    painel.innerHTML = `
+      <div style="padding:10px;background:#f5f5f5;border:1px solid #ddd;border-radius:3px">
+        <h4>Pontos Focais</h4>
+      </div>
+      <div>
+        <label for="secretariasList">Selecione a Secretaria</label>
+        <select id="secretariasList" style="width:100%;padding:6px;margin:8px 0;"></select>
+        <label>Nome(s) relacionado(s)</label>
+        <ul id="nomesSecretaria" style="list-style:none;padding-left:0; margin-top: 5px; border: 1px solid #ccc; padding: 5px; min-height: 50px; background: #fff;"></ul>
+        <button id="autotramitar" type="button" style="padding:8px 15px;margin-top:10px;">Tramitar</button>
+      </div>
+    `;
+    const container = document.querySelector('.col-md-6.col-md-push-6.hidden-print');
+    if (container) {
+        container.insertBefore(painel, container.firstChild);
+    } else {
+        console.error('Container para o painel não encontrado.');
+        // Opcional: adicionar o painel ao body como fallback ou logar erro
+        // document.body.appendChild(painel); 
+    }
 
-            // Força o estilo do campo de mensagem
-            campoTextoTramitar.style.width = "515px";
-            campoTextoTramitar.style.height = "1036px";
-        }
+    // Carrega dados
+    const textConfig = await carregarJSON('config/text.json');
+    const pontosFocais = await carregarJSON('config/pontosfocais.json');
 
-        // Criação de uma nova div (painel)
-        const painel = document.createElement('div');
-        painel.style.display = 'block';
-        painel.style.marginBottom = '20px';
-        painel.style.padding = '15px';
-        painel.style.backgroundColor = '#fff';
-        painel.style.border = '1px solid #ddd';
-        painel.style.borderRadius = '4px';
+    if (!pontosFocais) {
+        console.error("Falha ao carregar pontosfocais.json. Funcionalidade de pontos focais não estará disponível.");
+        // Poderia desabilitar ou esconder o painel aqui
+        return; 
+    }
+    if (!textConfig) {
+        console.error("Falha ao carregar text.json. Funcionalidade de autotramitar pode não funcionar corretamente.");
+    }
 
-        // Estrutura do painel com a ListBox para selecionar a Secretaria
-        painel.innerHTML = `
-    <div style="color: #333; background-color: #f5f5f5; border-color: #ddd; padding: 10px 15px; border-bottom: 1px solid transparent; border-top-left-radius: 3px; border-top-right-radius: 3px; box-sizing: border-box; display: block; unicode-bidi: isolate;">
-        <h4 class="panel-title" style="margin: 0;">Pontos Focais</h4>
-    </div>
-    <div>
-        <dt>Selecione a Secretaria</dt>
-        <dd>
-            <select id="secretariasList" style="width: 100%; padding: 8px; margin-bottom: 10px;">
-                <option value="">Escolha uma Secretaria</option>
-                <option value="SESU">Secretaria de Educação Superior - SESu</option>
-                <option value="SERES">Secretaria de Regulação e Supervisão da Educação Superior - SERES</option>
-                <option value="SETEC">Secretaria de Educação Profissional e Tecnológica - SETEC</option>
-                <option value="SEB">Secretaria de Educação Básica - SEB</option>
-                <option value="SASE">Secretaria de Articulação Intersetorial e com os Sistemas de Ensino - SASE</option>
-                <option value="SECADI">Secretaria de Educação Continuada, Alfabetização, Diversidade e Inclusão - SECADI</option>
-                <option value="STIC">Subsecretaria de Tecnologia da Informação e Comunicação - STIC</option>
-                <option value="SPO">Subsecretaria de Planejamento e Orçamento - SPO</option>
-                <option value="SGA">Subsecretaria de Gestão Administrativa - SGA</option>
-                <option value="SE">Secretaria Executiva - SE</option>
-                <option value="COR">Corregedoria - COR</option>
-                <option value="CONJUR">Consultoria Jurídica - CONJUR</option>
-                <option value="AECI">Assessoria Especial de Controle Interno - AECI</option>
-                <option value="GM">Gabinete do Ministro - GM</option>
-                <option value="CNE">Conselho Nacional de Educação - CNE</option>
-                <option value="SEGAPE">Inovação e Avaliação de Políticas Educacionais (Segape)</option>
-            </select>
-        </dd>
+    const template = textConfig?.Tramitar?.['Encaminhamento para Pontos Focais'] ?? 
+        'Prezados(as) Senhores(as) da {SECRETARIA},\n\nEncaminhamos a presente demanda para análise e providências cabíveis.\n\nPrazo para atendimento: {PRAZO}\n\nAtenciosamente,';
 
-        <dt>Nome(s) relacionado(s)</dt>
-        <dd>
-            <ul id="nomesSecretaria" style="list-style-type: none; padding-left: 0;">
-                <!-- Nomes serão exibidos aqui -->
-            </ul>
-        </dd>
-        <button id="autotramitar" type="button">Tramitar</button>
-    </div>
-`;
 
-        // Função para exibir os nomes relacionados à secretaria selecionada
-        function exibirNomes() {
-            const nomesSecretaria = document.getElementById('nomesSecretaria');
-            const listaSecretarias = {
-                SESU: ["Secretaria de Educação Superior- GABINETE/SESU","GRECE MARIA SOUSA CARDOSO", "HELOISA SANTOS OLIVEIRA", "ELIZABETH RODRIGUES MARTINS ROCHA SILVA", "KENYA REIS SILVA DIAS"],
-                SERES: ["Secretaria de Regulação e Supervisão da Educação Superior- SERES","DANIEL GOMES DA SILVA FERNANDES", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA"],
-                SETEC: ["Secretaria de Educação Profissional e Tecnológica- SETEC","MARINA RAMOS VASCONCELOS RADA", "KATARINA EZILDA FERREIRA SANTIAGO", "NAYARA DE PADUA RESENDE"],
-                SEB: ["Secretaria de Educação Básica- SEB","PAULA GOMES FRANCA", "ELMA CLARA QUEIROZ RAMOS SIQUEIRA"],
-                SASE: ["Secretaria de Articulação com os Sistemas de Ensino- SASE","IVONE COSTA DE OLIVEIRA", "ROGERIO DE JESUS COSTA SOUSA"],
-                SECADI: ["Secretaria de Educação Continuada, Alfabetização de Jovens e Adultos, Diversidade e Inclusão- SECADI","ANTONIO DE MELO SANTOS", "ROBSON RODRIGUES DE OLIVEIRA"],
-                STIC: ["Subsecretaria de Tecnologia da Informação e Comunicação- STIC","BRUNO CORREA MIRANDA", "RAPHAEL ZERLOTTINI DOS REIS"],
-                SPO: ["Subsecretaria de Planejamento e Orçamento- SPO","LUCIANA NUNES DE OLIVEIRA", "JUNIA LAGOEIRO DUTRA NEHME"],
-                SGA: ["Subsecretaria de Gestão Administrativa - SGA", "ANTÔNIO FRANCISCO DE SOUZA", "FERNANDA DIAS FERNANDES", "Antonio Weverson Gomes dos Santos"],
-                SE: ["Secretaria-Executiva- SE","MARCOS GONZAGA DE LIMA", "ANA CRISTINA SOUZA DA SILVA"],
-                COR: ["Corregedoria-COR","FABRIZIA DE LIMA", "LUIZA DALVA RODRIGUES PAIVA"],
-                CONJUR: ["Consultoria Jurídica- CONJUR","AMANDA PRICILA ESTRELA BIZINOTO FELTRIM", "THIAGO RAFAEL FAGUNDES"],
-                AECI: ["Assessoria Especial de Controle Interno- AECI","RUTH MARIANA LIMA CORDEIRO"],
-                GM: ["Gabinete do Ministro - GM","GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO"],
-                CNE: ["Conselho Nacional de Educação- CNE","DANIEL ARAGAO PARENTE VALENTIM","MARCELA ARAUJO BASILIO FRANCA PAVETITS","LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"],
-                SEGAPE: ["Secretaria de Gestão da Informação, Inovação e Avaliação de Políticas Educacionais (Segape)","Cláudia Rezende Medeiros Passsetto"]
-            };
+    // popula select de secretarias
+    const selectSec = document.getElementById('secretariasList');
+    if (selectSec) {
+        const placeholder = document.createElement('option');
+        placeholder.text = 'Escolha uma Secretaria';
+        placeholder.value = '';
+        selectSec.appendChild(placeholder);
 
-            const secretariaSelecionada = document.getElementById('secretariasList').value;
-            nomesSecretaria.innerHTML = ''; // Limpa a lista de nomes
+        Object.keys(pontosFocais).forEach(key => {
+            const opt = document.createElement('option');
+            opt.value = key; // e.g., "SESU"
+            opt.text = pontosFocais[key].descricao || key; // Usa a descrição se disponível, senão a chave
+            selectSec.appendChild(opt);
+        });
+    }
 
-            if (secretariaSelecionada && listaSecretarias[secretariaSelecionada]) {
-                listaSecretarias[secretariaSelecionada].forEach(nome => {
-                    const li = document.createElement('li');
-                    li.textContent = nome;
-                    nomesSecretaria.appendChild(li);
-                });
+
+    // exibe nomes
+    function exibirNomes() {
+      const ul = document.getElementById('nomesSecretaria');
+      if (!ul) return;
+      const key = selectSec.value;
+      ul.innerHTML = ''; // Limpa nomes anteriores
+      if (key && pontosFocais[key] && pontosFocais[key].equipe) { // Verifica se a chave existe e tem a propriedade equipe
+        pontosFocais[key].equipe.forEach(nome => {
+          const li = document.createElement('li');
+          li.textContent = nome;
+          ul.appendChild(li);
+        });
+      }
+    }
+
+    // função de auto-tramitar
+    function configurarAutotramitar() { // Renomeada para clareza, pois ela configura o listener
+      const botaoAutotramitar = document.getElementById('autotramitar');
+      if (botaoAutotramitar) {
+          botaoAutotramitar.addEventListener('click', () => {
+            if (campoTextoTramitar && campoTags && selectSec) {
+              const secretariaKey = selectSec.value; // Chave da secretaria, ex: "SESU"
+              const secretariaSelecionada = pontosFocais[secretariaKey];
+
+              if (!secretariaSelecionada) {
+                  alert("Por favor, selecione uma secretaria válida.");
+                  return;
+              }
+              
+              // Usar a descrição da secretaria no template, ou a chave se não houver descrição
+              const nomeSecretariaParaTemplate = secretariaSelecionada.descricao || secretariaKey;
+              
+              // Atualizar o campoTags com a sigla/chave da secretaria
+              campoTags.value = secretariaKey; 
+
+              const prazo = calcularDataMenosDezDias();
+              campoTextoTramitar.value = template
+                .replace(/\{SECRETARIA\}/g, nomeSecretariaParaTemplate)
+                .replace(/\{PRAZO\}/g, prazo);
+              
+              // Ajustes de estilo (opcional, mas estavam no seu código)
+              campoTextoTramitar.style.width = '515px'; // Considere usar % ou classes CSS
+              campoTextoTramitar.style.height = '1036px';// Considere usar % ou classes CSS
+            } else {
+                if (!campoTextoTramitar) console.error("Campo de texto para tramitar não encontrado.");
+                if (!campoTags) console.error("Campo de tags não encontrado.");
+                if (!selectSec) console.error("Select de secretarias não encontrado.");
             }
+          });
+      }
+    }
+
+    // eventos
+    if (selectSec) {
+        selectSec.addEventListener('change', () => {
+            exibirNomes();
+            localStorage.setItem('secSelecionada', selectSec.value);
+            // Se quiser que campoTags seja atualizado dinamicamente com a sigla da secretaria:
+            // if (campoTags) {
+            //   campoTags.value = selectSec.value; // Coloca a sigla (ex: "SESU") no campo tags
+            // }
+        });
+
+        // mantém seleção após reload e exibe nomes
+        const salva = localStorage.getItem('secSelecionada');
+        if (salva) {
+            selectSec.value = salva;
         }
+        exibirNomes(); // Exibe nomes para a secretaria carregada do localStorage ou placeholder
+    }
+    
+    configurarAutotramitar(); // Configura o listener do botão de tramitar
 
-        function autotramitar() {
-            document.getElementById("autotramitar").addEventListener("click", function () {
-                let select = document.getElementById("secretariasList");
-                let secretariaSelecionada = select.value;
-                let nomesSecretaria = {
-                    SESU: ["Secretaria de Educação Superior- GABINETE/SESU","GRECE MARIA SOUSA CARDOSO", "HELOISA SANTOS OLIVEIRA", "ELIZABETH RODRIGUES MARTINS ROCHA SILVA", "KENYA REIS SILVA DIAS"],
-                    SERES: ["Secretaria de Regulação e Supervisão da Educação Superior- SERES","DANIEL GOMES DA SILVA FERNANDES", "WILLIAN PEREIRA JUNIOR", "JESSICA DA SILVA FERREIRA PEREIRA"],
-                    SETEC: ["Secretaria de Educação Profissional e Tecnológica- SETEC","MARINA RAMOS VASCONCELOS RADA", "KATARINA EZILDA FERREIRA SANTIAGO", "NAYARA DE PADUA RESENDE"],
-                    SEB: ["Secretaria de Educação Básica- SEB","PAULA GOMES FRANCA", "ELMA CLARA QUEIROZ RAMOS SIQUEIRA"],
-                    SASE: ["Secretaria de Articulação com os Sistemas de Ensino- SASE","IVONE COSTA DE OLIVEIRA", "ROGERIO DE JESUS COSTA SOUSA"],
-                    SECADI: ["Secretaria de Educação Continuada, Alfabetização de Jovens e Adultos, Diversidade e Inclusão- SECADI","ANTONIO DE MELO SANTOS", "ROBSON RODRIGUES DE OLIVEIRA"],
-                    STIC: ["Subsecretaria de Tecnologia da Informação e Comunicação- STIC","BRUNO CORREA MIRANDA", "RAPHAEL ZERLOTTINI DOS REIS"],
-                    SPO: ["Subsecretaria de Planejamento e Orçamento- SPO","LUCIANA NUNES DE OLIVEIRA", "JUNIA LAGOEIRO DUTRA NEHME"],
-                    SGA: ["Subsecretaria de Gestão Administrativa - SGA", "ANTÔNIO FRANCISCO DE SOUZA", "FERNANDA DIAS FERNANDES", "Antonio Weverson Gomes dos Santos"],
-                    SE: ["Secretaria-Executiva- SE","MARCOS GONZAGA DE LIMA", "ANA CRISTINA SOUZA DA SILVA"],
-                    COR: ["Corregedoria-COR","FABRIZIA DE LIMA", "LUIZA DALVA RODRIGUES PAIVA"],
-                    CONJUR: ["Consultoria Jurídica- CONJUR","AMANDA PRICILA ESTRELA BIZINOTO FELTRIM", "THIAGO RAFAEL FAGUNDES"],
-                    AECI: ["Assessoria Especial de Controle Interno- AECI","RUTH MARIANA LIMA CORDEIRO"],
-                    GM: ["Gabinete do Ministro - GM","GISELE CUNHA NEVES", "MAIARA ROSA DE SOUZA RIBEIRO"],
-                    CNE: ["Conselho Nacional de Educação- CNE","DANIEL ARAGAO PARENTE VALENTIM","MARCELA ARAUJO BASILIO FRANCA PAVETITS","LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"],
-                    SEGAPE: ["Secretaria de Gestão da Informação, Inovação e Avaliação de Políticas Educacionais (Segape)","Cláudia Rezende Medeiros Passsetto"]
-                };
+  });
 
-                let nomes = nomesSecretaria[secretariaSelecionada] || [];
-                if (nomes.length === 0) {
-                    alert("Selecione uma secretaria válida!");
-                    return;
-                }
-
-                // Função para verificar os nomes já adicionados na tabela
-                function getNomesNaTabela() {
-                    let tabela = document.getElementById("ConteudoForm_ConteudoGeral_ConteudoFormComAjax_grdUsuariosUnidades");
-                    if (!tabela) return [];
-
-                    let nomesNaTabela = [];
-                    let spans = tabela.querySelectorAll("span[id^='ConteudoForm_ConteudoGeral_ConteudoFormComAjax_grdUsuariosUnidades_lblNomeItem']");
-
-                    spans.forEach(span => {
-                        let nomeCorrigido = span.textContent.trim().replace(" (Unidade)", "");
-                        nomesNaTabela.push(nomeCorrigido);
-                    });
-
-                    return nomesNaTabela;
-                }
-
-                // Função para adicionar um nome
-                function adicionarNome(index = 0) {
-                    if (index >= nomes.length) {
-                        alert("Todos os nomes foram verificados e adicionados!");
-                        return;
-                    }
-
-                    let nomesNaTabela = getNomesNaTabela();
-                    let nome = nomes[index];
-
-                    // Se o nome já foi adicionado, passa para o próximo
-                    if (nomesNaTabela.includes(nome)) {
-                        console.log(`Nome já existe: ${nome}`);
-                        adicionarNome(index + 1); // Chama a função recursivamente para o próximo nome
-                        return;
-                    }
-
-                    let input = document.getElementById("selectize_0");
-                    let botaoAdicionar = document.getElementById("ConteudoForm_ConteudoGeral_ConteudoFormComAjax_btnIncluirUsuario");
-
-                    if (!input || !botaoAdicionar) {
-                        alert("Erro: Elementos necessários não encontrados.");
-                        return;
-                    }
-
-                    input.click();
-                    input.value = nome;
-
-                    let eventInput = new Event("input", { bubbles: true });
-                    input.dispatchEvent(eventInput);
-
-                    setTimeout(() => {
-                        let eventEnter = new KeyboardEvent("keydown", { key: "Enter", keyCode: 13, which: 13, bubbles: true });
-                        input.dispatchEvent(eventEnter);
-
-                        // Clica no botão para adicionar o nome
-                        botaoAdicionar.click(); // Clica no botão para adicionar o nome
-
-                        // Espera a página carregar e aguarda um tempo extra antes de continuar o próximo
-                        setTimeout(() => {
-                            adicionarNome(index + 1); // Chama a função recursivamente para o próximo nome
-                        }, 3000); // Aguarda 3 segundos para garantir que o AJAX tenha terminado
-                    }, 500); // Aguarda 500ms para "Enter" ser disparado
-                }
-
-                // Começa o processo de adicionar os nomes
-                adicionarNome();
-            });
-        }
-
-
-        // Adiciona o painel no local correto
-        const container = document.querySelector('.col-md-6.col-md-push-6.hidden-print');
-        if (container) {
-            container.insertBefore(painel, container.firstChild);
-        }
-
-        // Configura eventos
-        document.getElementById('secretariasList').addEventListener('change', exibirNomes);
-        autotramitar(); // Chama a função para adicionar evento ao botão
-
-        // Adiciona o evento de seleção para exibir os nomes
-        const selectSecretarias = document.getElementById('secretariasList');
-        if (selectSecretarias) {
-            selectSecretarias.addEventListener('change', exibirNomes);
-            const secretariaSalva = localStorage.getItem('secretariaSelecionada');
-            if (secretariaSalva) {
-                selectSecretarias.value = secretariaSalva;
-                exibirNomes(secretariaSalva);
-            }
-            selectSecretarias.addEventListener('change', function() {
-                const secretariaSelecionada = this.value;
-                localStorage.setItem('secretariaSelecionada', secretariaSelecionada);
-                exibirNomes(secretariaSelecionada);
-            });
-        }
-    });
 })();
