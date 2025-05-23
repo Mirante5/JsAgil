@@ -1,118 +1,111 @@
 (function() {
     'use strict';
 
-    window.addEventListener('load', function() {
-        // Seleciona o campo "Esfera"
+    window.addEventListener('load', async function() {
+        // elementos da página
         const campoEsfera = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_cmbEsferaOuvidoriaDestino');
-
-        // Seleciona os campos de notificação
         const notificacaoDestinatario = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtNotificacaoDestinatario');
         const notificacaoSolicitante = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtNotificacaoSolicitante');
-
-        // Obtém o número da manifestação
         const numeroManifestacaoElement = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtNumero');
+        const campoOuvidoriaDestino = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_cmbOuvidoriaDestino');
         const numeroManifestacao = numeroManifestacaoElement ? numeroManifestacaoElement.innerText.trim() : '';
 
-        // Seleciona o campo "Ouvidoria Destino" (selectize)
-        const campoOuvidoriaDestino = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_cmbOuvidoriaDestino');
+        if (!campoEsfera || !notificacaoDestinatario || !notificacaoSolicitante) {
+            console.error('Campos essenciais não encontrados.');
+            return;
+        }
 
-        // Função para atualizar o texto do solicitante com o valor selecionado do selectize
+        // carrega JSON
+        async function carregarConfig() {
+            try {
+                const url = chrome.runtime.getURL('config/text.json');
+                const resp = await fetch(url);
+                return await resp.json();
+            } catch (e) {
+                console.error('Erro ao carregar text.json:', e);
+                return null;
+            }
+        }
+
+        const config = await carregarConfig();
+        const encaminhamentos = config && config.Encaminhar ? config.Encaminhar : {};
+
+        // cria label e select
+        const label = document.createElement('label');
+        label.setAttribute('for', 'justificativasBox');
+        label.textContent = 'Texto de Encaminhamento:';
+        label.style.display = 'block';
+        label.style.marginTop = '50px';
+
+        const select = document.createElement('select');
+        select.id = 'justificativasBox';
+        select.style.width = '100%';
+        select.style.padding = '8px';
+        select.style.border = '1px solid #ccc';
+        select.style.borderRadius = '4px';
+        select.style.fontSize = '14px';
+
+        // opção padrão
+        const optDefault = document.createElement('option');
+        optDefault.value = '';
+        optDefault.textContent = 'Selecione uma justificativa...';
+        select.appendChild(optDefault);
+
+        // popula com config.Encaminhar
+        Object.entries(encaminhamentos).forEach(([chave, obj]) => {
+            const opt = document.createElement('option');
+            // armazena um JSON stringificado com destinatario+solicitante
+            opt.value = JSON.stringify({
+                destinatario: obj.destinatario,
+                solicitante: obj.solicitante
+                    .replace('${numeroManifestacao}', numeroManifestacao)
+            });
+            opt.textContent = chave;
+            select.appendChild(opt);
+        });
+
+        // atualiza campos
         function atualizarTextoSolicitante() {
-            if (notificacaoSolicitante && campoOuvidoriaDestino) {
-                // Obtém o valor selecionado no selectize
-                const textoDestino = campoOuvidoriaDestino.selectedOptions[0] ? campoOuvidoriaDestino.selectedOptions[0].text : '';
-
-                // Verifica se o solicitante já possui texto, caso contrário, não altera
-                if (notificacaoSolicitante.value) {
-                    // Substitui o marcador {OUVIDORIA} no texto do solicitante
-                    notificacaoSolicitante.value = notificacaoSolicitante.value.replace("{OUVIDORIA}", textoDestino);
-                }
+            if (campoOuvidoriaDestino && notificacaoSolicitante.value) {
+                const textoDest = campoOuvidoriaDestino.selectedOptions[0]
+                    ? campoOuvidoriaDestino.selectedOptions[0].text
+                    : '';
+                notificacaoSolicitante.value =
+                    notificacaoSolicitante.value.replace(/\{OUVIDORIA\}/g, textoDest);
             }
         }
 
-        // Função para atualizar a justificativa e integrar o valor do selectize
         function atualizarJustificativa() {
-            const justificativasBox = document.getElementById('justificativasBox');
-            if (justificativasBox && notificacaoDestinatario && notificacaoSolicitante) {
-                const selectedValue = JSON.parse(justificativasBox.value);
-
-                // Obtém o texto da Ouvidoria
-                const textoDestino = campoOuvidoriaDestino.selectedOptions[0] ? campoOuvidoriaDestino.selectedOptions[0].text : '';
-
-                // Atualiza a justificativa do destinatário
-                notificacaoDestinatario.value = selectedValue.destinatario;
-
-                // Atualiza a justificativa do solicitante com o texto da Ouvidoria
-                const textoSolicitante = selectedValue.solicitante.replace("{OUVIDORIA}", textoDestino);
-                notificacaoSolicitante.value = textoSolicitante;
-            }
+            const sel = document.getElementById('justificativasBox');
+            if (!sel) return;
+            const val = sel.value ? JSON.parse(sel.value) : { destinatario: '', solicitante: '' };
+            const textoDest = campoOuvidoriaDestino.selectedOptions[0]
+                ? campoOuvidoriaDestino.selectedOptions[0].text
+                : '';
+            notificacaoDestinatario.value = val.destinatario;
+            notificacaoDestinatario.dispatchEvent(new Event('input', { bubbles: true }));
+            notificacaoDestinatario.addEventListener('change', e => e.stopImmediatePropagation(), true);
+            notificacaoSolicitante.value = val.solicitante.replace(/\{OUVIDORIA\}/g, textoDest);
         }
 
-        // Verifica se os campos essenciais estão presentes na página
-        if (campoEsfera && notificacaoDestinatario && notificacaoSolicitante) {
-            // Criar a label para o novo campo de justificativas
-            const labelJustificativa = document.createElement('label');
-            labelJustificativa.setAttribute('for', 'justificativasBox');
-            labelJustificativa.innerText = 'Texto de Encaminhamento:';
-            labelJustificativa.style.display = 'block';
-            labelJustificativa.style.marginTop = '50px';
+        // insere no DOM
+        campoEsfera.parentNode.appendChild(label);
+        campoEsfera.parentNode.appendChild(select);
 
-            // Criar o dropdown com as justificativas
-            const justificativasBox = document.createElement('select');
-            justificativasBox.setAttribute('id', 'justificativasBox');
-            justificativasBox.setAttribute('name', 'justificativasBox');
-            justificativasBox.style.width = '100%';
-            justificativasBox.style.padding = '8px';
-            justificativasBox.style.border = '1px solid #ccc';
-            justificativasBox.style.borderRadius = '4px';
-            justificativasBox.style.fontSize = '14px';
+        // listeners
+        select.addEventListener('change', atualizarJustificativa);
 
-            // Opções de justificativas
-            const justificativas = [
-                {
-                    text: 'Selecione uma justificativa...',
-                    value: { destinatario: '', solicitante: '' }
-                },
-                {
-                    text: 'Encaminhamento em geral',
-                    value: {
-                        destinatario: `Prezado(a) Ouvidor(a), \n\nInformamos que esta Ouvidoria do Ministério da Educação recebeu a presente \n\ndemanda, que trata sobre tema relacionado à competência dessa instituição. \n\nDessa forma, encaminhamos a manifestação e encerramos o seu tratamento. Em caso de dúvida ou encaminhamento indevido, entrar em contato pelo e-mail \n\nouvidoria@mec.gov.br ou pelo telefone (61) 2022-2595. \n\nAgradecemos o acolhimento da demanda e colocamo-nos à disposição para outros esclarecimentos.\n\nAtenciosamente, \n\nOuvidoria do Ministério da Educação \n\nACESSE: https: https://www.gov.br/mec/pt-br/canais_atendimento/ouvidoria `,
-                        solicitante: `Prezado(a) Senhor(a), \n\nA Ouvidoria do Ministério da Educação agradece o seu contato! \n\nInformamos que sua manifestação foi encaminhada para a unidade de ouvidoria do {OUVIDORIA}, responsável pelas providências requeridas. \n\nCaso seja de seu interesse, poderá acompanhar a manifestação por meio do Número Único de Protocolo ${numeroManifestacao} já gerado no Fala.BR e enviado ao seu e-mail. \n\nAgradecemos a sua colaboração e colocamo-nos à disposição sempre que desejar falar com a Ouvidoria do Ministério da Educação. \n\nAtenciosamente, \n\nOuvidoria do Ministério da Educação \n\nACESSE: https: https://www.gov.br/mec/pt-br/canais_atendimento/ouvidoria \n\nAvaliação Ouvidoria \n\nQueremos convidar você a compartilhar sua experiência com a Ouvidoria do MEC (OUV/MEC) e as unidades do Ministério da Educação. \n\nSua participação nos ajudará a melhorar nossos serviços e garantir que continuemos atendendo às suas necessidades da melhor forma possível.  \n\nNos avalie diretamente pela Plataforma Fala.BR, leva apenas alguns minutos e seu feedback será extremamente valioso.  \n\nContamos com você para fazer a diferença! \n\n`
-                    }
-                }
-            ];
-
-            // Adiciona as opções ao dropdown
-            justificativas.forEach(justificativa => {
-                const option = document.createElement('option');
-                option.value = JSON.stringify(justificativa.value);
-                option.text = justificativa.text;
-                justificativasBox.appendChild(option);
-            });
-
-            // Adiciona o evento de mudança para atualizar os campos de justificativa
-            justificativasBox.addEventListener('change', function() {
-                atualizarJustificativa();
-            });
-
-            // Insere a label e o dropdown após o campo de Esfera
-            campoEsfera.parentNode.appendChild(labelJustificativa);
-            campoEsfera.parentNode.appendChild(justificativasBox);
-
-            // Atualiza o texto do solicitante e destinatário ao carregar a página
+        // observa mudanças no destino
+        const obs = new MutationObserver(() => {
             atualizarTextoSolicitante();
-
-            // Atualiza a justificativa ao carregar
             atualizarJustificativa();
-
-            // Adiciona um observador para monitorar alterações no campo "Ouvidoria Destino"
-            const observer = new MutationObserver(function() {
-                atualizarTextoSolicitante();
-                atualizarJustificativa();
-            });
-
-            const config = { attributes: true, childList: true, subtree: true };
-            observer.observe(campoOuvidoriaDestino, config);
+        });
+        if (campoOuvidoriaDestino) {
+            obs.observe(campoOuvidoriaDestino, { childList: true, subtree: true });
         }
+
+        // disparos iniciais
+        atualizarTextoSolicitante();
+        atualizarJustificativa();
     });
 })();

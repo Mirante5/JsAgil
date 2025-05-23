@@ -1,11 +1,15 @@
-(function() {
+(function () {
     'use strict';
 
-    window.addEventListener('load', async function() {
-        const motivoArquivamentoLabel = document.querySelector('label[for="ConteudoForm_ConteudoGeral_ConteudoFormComAjax_cmbMotivoArquivamento"]');
-        const justificativaInput = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtJustificativaArquivamento');
-        const numeroManifestacaoElement = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtNumero');
-        const numeroManifestacao = numeroManifestacaoElement ? numeroManifestacaoElement.innerText : '';
+    window.addEventListener('load', async function () {
+        const labelForMotivo = 'ConteudoForm_ConteudoGeral_ConteudoFormComAjax_cmbMotivoArquivamento';
+        const inputJustificativaId = 'ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtJustificativaArquivamento';
+        const numeroManifestacaoId = 'ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtNumero';
+
+        const motivoArquivamentoLabel = document.querySelector(`label[for="${labelForMotivo}"]`);
+        const justificativaInput = document.getElementById(inputJustificativaId);
+        const numeroManifestacaoElement = document.getElementById(numeroManifestacaoId);
+        const numeroManifestacao = numeroManifestacaoElement?.innerText || '';
 
         if (!motivoArquivamentoLabel || !justificativaInput || !numeroManifestacaoElement) {
             console.error('Elementos necessários não encontrados na página.');
@@ -19,7 +23,23 @@
 
         console.log('Dropdown não encontrado. Criando o elemento...');
 
-        // 1) Cria label e select
+        criarDropdownJustificativas(motivoArquivamentoLabel, justificativaInput, numeroManifestacao);
+    });
+
+    async function carregarConfig() {
+        try {
+            const url = chrome.runtime.getURL('config/text.json');
+            const resp = await fetch(url);
+            return await resp.json();
+        } catch (e) {
+            console.error('Erro ao carregar text.json:', e);
+            return null;
+        }
+    }
+
+    async function criarDropdownJustificativas(labelElemento, inputJustificativa, numeroManifestacao) {
+        const config = await carregarConfig();
+
         const labelJustificativa = document.createElement('label');
         labelJustificativa.setAttribute('for', 'justificativasBox');
         labelJustificativa.textContent = 'Justificativa do Arquivamento:';
@@ -30,81 +50,57 @@
         justificativasBox.name = 'justificativasBox';
         justificativasBox.className = 'justificativas-dropdown';
 
-// 2) Carrega os arquivos JSON de configuração
-async function carregarConfig() {
-    const baseUrl = chrome.runtime.getURL('config/');
-
-    try {
-        const [textoResponse, pontosFocaisResponse] = await Promise.all([
-            fetch(baseUrl + 'text.json'),
-            fetch(baseUrl + 'pontosfocais.json')
-        ]);
-
-        const texto = await textoResponse.json();
-        const pontosFocais = await pontosFocaisResponse.json();
-
-        return { texto, pontosFocais };
-    } catch (error) {
-        console.error('Erro ao carregar arquivos de configuração:', error);
-        return null;
-    }
-}
-
-
-        const config = await carregarConfig();
         const fragment = document.createDocumentFragment();
 
-        // 3) Opção padrão
         const opcaoDefault = document.createElement('option');
         opcaoDefault.value = '';
         opcaoDefault.textContent = 'Selecione uma justificativa...';
         fragment.appendChild(opcaoDefault);
 
-        // 4) Se tiver config e config.Arquivar, popula a lista
-        if (config && config.Arquivar) {
-            for (const [key, texto] of Object.entries(config.Arquivar)) {
+        if (config?.Arquivar) {
+            Object.entries(config.Arquivar).forEach(([key, texto]) => {
                 const option = document.createElement('option');
-                option.value = texto.replace('{datalimite}', numeroManifestacao); // ou outro placeholder, se precisar
+                option.value = texto.replace('{datalimite}', numeroManifestacao);
                 option.textContent = key;
                 fragment.appendChild(option);
-            }
+            });
         } else {
             console.warn('Nenhuma justificativa encontrada em config.Arquivar');
         }
 
         justificativasBox.appendChild(fragment);
+        labelElemento.parentNode.appendChild(labelJustificativa);
+        labelElemento.parentNode.appendChild(justificativasBox);
 
-        // 5) Insere no DOM
-        motivoArquivamentoLabel.parentNode.appendChild(labelJustificativa);
-        motivoArquivamentoLabel.parentNode.appendChild(justificativasBox);
-
-        // 6) Ao mudar a seleção, atualiza o campo de justificativa
-        justificativasBox.addEventListener('change', function() {
-            justificativaInput.value = justificativasBox.value || '';
+        justificativasBox.addEventListener('change', function () {
+            inputJustificativa.value = justificativasBox.value || '';
         });
 
-        // 7) Insere estilos (só uma vez)
-        if (!document.querySelector('.justificativas-styles')) {
-            const style = document.createElement('style');
-            style.className = 'justificativas-styles';
-            style.textContent = `
-                .justificativas-label {
-                    display: block;
-                    margin-top: 20px;
-                    font-weight: bold;
-                }
-                .justificativas-dropdown {
-                    width: 100%;
-                    padding: 6px;
-                    margin-top: 4px;
-                    border: 1px solid #ccc;
-                    border-radius: 4px;
-                    font-size: 14px;
-                }
-            `;
-            document.head.appendChild(style);
-        }
+        inserirEstilos();
 
         console.log('Dropdown e label criados com sucesso no DOM.');
-    });
+    }
+
+    function inserirEstilos() {
+        if (document.querySelector('.justificativas-styles')) return;
+
+        const style = document.createElement('style');
+        style.className = 'justificativas-styles';
+        style.textContent = `
+            .justificativas-label {
+                display: block;
+                margin-top: 20px;
+                font-weight: bold;
+            }
+            .justificativas-dropdown {
+                width: 100%;
+                padding: 6px;
+                margin-top: 4px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+        `;
+        document.head.appendChild(style);
+    }
 })();

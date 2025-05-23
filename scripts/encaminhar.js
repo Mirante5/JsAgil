@@ -1,21 +1,22 @@
-(function() {
+(function () {
     'use strict';
 
-    window.addEventListener('load', async function() {
-        // elementos da página
+    window.addEventListener('load', async function () {
+        const SELECT_ID = 'justificativasBox';
+
+        // Obtenção de elementos
         const campoEsfera = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_cmbEsferaOuvidoriaDestino');
         const notificacaoDestinatario = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtNotificacaoDestinatario');
         const notificacaoSolicitante = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtNotificacaoSolicitante');
-        const numeroManifestacaoElement = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtNumero');
         const campoOuvidoriaDestino = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_cmbOuvidoriaDestino');
-        const numeroManifestacao = numeroManifestacaoElement ? numeroManifestacaoElement.innerText.trim() : '';
+        const numeroManifestacao = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_infoManifestacoes_infoManifestacao_txtNumero')?.innerText.trim() || '';
 
         if (!campoEsfera || !notificacaoDestinatario || !notificacaoSolicitante) {
             console.error('Campos essenciais não encontrados.');
             return;
         }
 
-        // carrega JSON
+        // Carrega JSON externo
         async function carregarConfig() {
             try {
                 const url = chrome.runtime.getURL('config/text.json');
@@ -27,84 +28,84 @@
             }
         }
 
-        const config = await carregarConfig();
-        const encaminhamentos = config && config.Encaminhar ? config.Encaminhar : {};
-
-        // cria label e select
-        const label = document.createElement('label');
-        label.setAttribute('for', 'justificativasBox');
-        label.textContent = 'Texto de Encaminhamento:';
-        label.style.display = 'block';
-        label.style.marginTop = '50px';
-
-        const select = document.createElement('select');
-        select.id = 'justificativasBox';
-        select.style.width = '100%';
-        select.style.padding = '8px';
-        select.style.border = '1px solid #ccc';
-        select.style.borderRadius = '4px';
-        select.style.fontSize = '14px';
-
-        // opção padrão
-        const optDefault = document.createElement('option');
-        optDefault.value = '';
-        optDefault.textContent = 'Selecione uma justificativa...';
-        select.appendChild(optDefault);
-
-        // popula com config.Encaminhar
-        Object.entries(encaminhamentos).forEach(([chave, obj]) => {
-            const opt = document.createElement('option');
-            // armazena um JSON stringificado com destinatario+solicitante
-            opt.value = JSON.stringify({
-                destinatario: obj.destinatario,
-                solicitante: obj.solicitante
-                    .replace('${numeroManifestacao}', numeroManifestacao)
+        // Cria label e dropdown
+        function criarDropdown(encaminhamentos) {
+            const label = document.createElement('label');
+            label.setAttribute('for', SELECT_ID);
+            label.textContent = 'Texto de Encaminhamento:';
+            Object.assign(label.style, {
+                display: 'block',
+                marginTop: '50px'
             });
-            opt.textContent = chave;
-            select.appendChild(opt);
-        });
 
-        // atualiza campos
+            const select = document.createElement('select');
+            select.id = SELECT_ID;
+            Object.assign(select.style, {
+                width: '100%',
+                padding: '8px',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                fontSize: '14px'
+            });
+
+            const optDefault = document.createElement('option');
+            optDefault.value = '';
+            optDefault.textContent = 'Selecione uma justificativa...';
+            select.appendChild(optDefault);
+
+            Object.entries(encaminhamentos).forEach(([chave, obj]) => {
+                const option = document.createElement('option');
+                option.value = JSON.stringify({
+                    destinatario: obj.destinatario,
+                    solicitante: obj.solicitante.replace('${numeroManifestacao}', numeroManifestacao)
+                });
+                option.textContent = chave;
+                select.appendChild(option);
+            });
+
+            return { label, select };
+        }
+
         function atualizarTextoSolicitante() {
             if (campoOuvidoriaDestino && notificacaoSolicitante.value) {
-                const textoDest = campoOuvidoriaDestino.selectedOptions[0]
-                    ? campoOuvidoriaDestino.selectedOptions[0].text
-                    : '';
-                notificacaoSolicitante.value =
-                    notificacaoSolicitante.value.replace(/\{OUVIDORIA\}/g, textoDest);
+                const textoDest = campoOuvidoriaDestino.selectedOptions[0]?.text || '';
+                notificacaoSolicitante.value = notificacaoSolicitante.value.replace(/\{OUVIDORIA\}/g, textoDest);
             }
         }
 
         function atualizarJustificativa() {
-            const sel = document.getElementById('justificativasBox');
-            if (!sel) return;
-            const val = sel.value ? JSON.parse(sel.value) : { destinatario: '', solicitante: '' };
-            const textoDest = campoOuvidoriaDestino.selectedOptions[0]
-                ? campoOuvidoriaDestino.selectedOptions[0].text
-                : '';
+            const select = document.getElementById(SELECT_ID);
+            if (!select || !select.value) return;
+
+            const val = JSON.parse(select.value);
+            const textoDest = campoOuvidoriaDestino?.selectedOptions[0]?.text || '';
+
             notificacaoDestinatario.value = val.destinatario;
             notificacaoDestinatario.dispatchEvent(new Event('input', { bubbles: true }));
             notificacaoDestinatario.addEventListener('change', e => e.stopImmediatePropagation(), true);
+
             notificacaoSolicitante.value = val.solicitante.replace(/\{OUVIDORIA\}/g, textoDest);
         }
 
-        // insere no DOM
+        // Processa a configuração e insere elementos no DOM
+        const config = await carregarConfig();
+        const encaminhamentos = config?.Encaminhar || {};
+
+        const { label, select } = criarDropdown(encaminhamentos);
         campoEsfera.parentNode.appendChild(label);
         campoEsfera.parentNode.appendChild(select);
 
-        // listeners
         select.addEventListener('change', atualizarJustificativa);
 
-        // observa mudanças no destino
-        const obs = new MutationObserver(() => {
-            atualizarTextoSolicitante();
-            atualizarJustificativa();
-        });
+        // Observa mudanças no destino
         if (campoOuvidoriaDestino) {
-            obs.observe(campoOuvidoriaDestino, { childList: true, subtree: true });
+            new MutationObserver(() => {
+                atualizarTextoSolicitante();
+                atualizarJustificativa();
+            }).observe(campoOuvidoriaDestino, { childList: true, subtree: true });
         }
 
-        // disparos iniciais
+        // Dispara atualizações iniciais
         atualizarTextoSolicitante();
         atualizarJustificativa();
     });

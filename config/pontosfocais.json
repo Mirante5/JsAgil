@@ -1,118 +1,86 @@
 {
-  "SESU": {
-    "descricao": "Secretaria de Educação Superior- GABINETE/SESU",
-    "equipe": [
-      "GRECE MARIA SOUSA CARDOSO",
-      "HELOISA SANTOS OLIVEIRA",
-      "ELIZABETH RODRIGUES MARTINS ROCHA SILVA",
-      "KENYA REIS SILVA DIAS"
-    ]
-  },
-  "SERES": {
-    "descricao": "Secretaria de Regulação e Supervisão da Educação Superior- SERES",
-    "equipe": [
-      "DANIEL GOMES DA SILVA FERNANDES",
-      "WILLIAN PEREIRA JUNIOR",
-      "JESSICA DA SILVA FERREIRA PEREIRA"
-    ]
-  },
-  "SETEC": {
-    "descricao": "Secretaria de Educação Profissional e Tecnológica- SETEC",
-    "equipe": [
-      "MARINA RAMOS VASCONCELOS RADA",
-      "KATARINA EZILDA FERREIRA SANTIAGO",
-      "NAYARA DE PADUA RESENDE"
-    ]
-  },
-  "SEB": {
-    "descricao": "Secretaria de Educação Básica- SEB",
-    "equipe": [
-      "PAULA GOMES FRANCA",
-      "ELMA CLARA QUEIROZ RAMOS SIQUEIRA"
-    ]
-  },
-  "SASE": {
-    "descricao": "Secretaria de Articulação com os Sistemas de Ensino- SASE",
-    "equipe": [
-      "IVONE COSTA DE OLIVEIRA",
-      "ROGERIO DE JESUS COSTA SOUSA"
-    ]
-  },
-  "SECADI": {
-    "descricao": "Secretaria de Educação Continuada, Alfabetização de Jovens e Adultos, Diversidade e Inclusão- SECADI",
-    "equipe": [
-      "ANTONIO DE MELO SANTOS",
-      "ROBSON RODRIGUES DE OLIVEIRA"
-    ]
-  },
-  "STIC": {
-    "descricao": "Subsecretaria de Tecnologia da Informação e Comunicação- STIC",
-    "equipe": [
-      "BRUNO CORREA MIRANDA",
-      "RAPHAEL ZERLOTTINI DOS REIS"
-    ]
-  },
-  "SPO": {
-    "descricao": "Subsecretaria de Planejamento e Orçamento- SPO",
-    "equipe": [
-      "LUCIANA NUNES DE OLIVEIRA",
-      "JUNIA LAGOEIRO DUTRA NEHME"
-    ]
-  },
-  "SGA": {
-    "descricao": "Subsecretaria de Gestão Administrativa - SGA",
-    "equipe": [
-      "ANTÔNIO FRANCISCO DE SOUZA",
-      "FERNANDA DIAS FERNANDES",
-      "Antonio Weverson Gomes dos Santos"
-    ]
-  },
-  "SE": {
-    "descricao": "Secretaria-Executiva- SE",
-    "equipe": [
-      "MARCOS GONZAGA DE LIMA",
-      "ANA CRISTINA SOUZA DA SILVA"
-    ]
-  },
-  "COR": {
-    "descricao": "Corregedoria-COR",
-    "equipe": [
-      "FABRIZIA DE LIMA",
-      "LUIZA DALVA RODRIGUES PAIVA"
-    ]
-  },
-  "CONJUR": {
-    "descricao": "Consultoria Jurídica- CONJUR",
-    "equipe": [
-      "AMANDA PRICILA ESTRELA BIZINOTO FELTRIM",
-      "THIAGO RAFAEL FAGUNDES"
-    ]
-  },
-  "AECI": {
-    "descricao": "Assessoria Especial de Controle Interno- AECI",
-    "equipe": [
-      "RUTH MARIANA LIMA CORDEIRO"
-    ]
-  },
-  "GM": {
-    "descricao": "Gabinete do Ministro - GM",
-    "equipe": [
-      "GISELE CUNHA NEVES",
-      "MAIARA ROSA DE SOUZA RIBEIRO"
-    ]
-  },
-  "CNE": {
-    "descricao": "Conselho Nacional de Educação- CNE",
-    "equipe": [
-      "DANIEL ARAGAO PARENTE VALENTIM",
-      "MARCELA ARAUJO BASILIO FRANCA PAVETITS",
-      "LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"
-    ]
-  },
-  "SEGAPE": {
-    "descricao": "Secretaria de Gestão da Informação, Inovação e Avaliação de Políticas Educacionais (Segape)",
-    "equipe": [
-      "Cláudia Rezende Medeiros Passsetto"
-    ]
-  }
+  "SESU": [
+    "Secretaria de Educação Superior- GABINETE/SESU",
+    "GRECE MARIA SOUSA CARDOSO",
+    "HELOISA SANTOS OLIVEIRA",
+    "ELIZABETH RODRIGUES MARTINS ROCHA SILVA",
+    "KENYA REIS SILVA DIAS"
+  ],
+  "SERES": [
+    "Secretaria de Regulação e Supervisão da Educação Superior- SERES",
+    "DANIEL GOMES DA SILVA FERNANDES",
+    "WILLIAN PEREIRA JUNIOR",
+    "JESSICA DA SILVA FERREIRA PEREIRA"
+  ],
+  "SETEC": [
+    "Secretaria de Educação Profissional e Tecnológica- SETEC",
+    "MARINA RAMOS VASCONCELOS RADA",
+    "KATARINA EZILDA FERREIRA SANTIAGO",
+    "NAYARA DE PADUA RESENDE"
+  ],
+  "SEB": [
+    "Secretaria de Educação Básica- SEB",
+    "PAULA GOMES FRANCA",
+    "ELMA CLARA QUEIROZ RAMOS SIQUEIRA"
+  ],
+  "SASE": [
+    "Secretaria de Articulação com os Sistemas de Ensino- SASE",
+    "IVONE COSTA DE OLIVEIRA",
+    "ROGERIO DE JESUS COSTA SOUSA"
+  ],
+  "SECADI": [
+    "Secretaria de Educação Continuada, Alfabetização de Jovens e Adultos, Diversidade e Inclusão- SECADI",
+    "ANTONIO DE MELO SANTOS",
+    "ROBSON RODRIGUES DE OLIVEIRA"
+  ],
+  "STIC": [
+    "Subsecretaria de Tecnologia da Informação e Comunicação- STIC",
+    "BRUNO CORREA MIRANDA",
+    "RAPHAEL ZERLOTTINI DOS REIS"
+  ],
+  "SPO": [
+    "Subsecretaria de Planejamento e Orçamento- SPO",
+    "LUCIANA NUNES DE OLIVEIRA",
+    "JUNIA LAGOEIRO DUTRA NEHME"
+  ],
+  "SGA": [
+    "Subsecretaria de Gestão Administrativa - SGA",
+    "ANTÔNIO FRANCISCO DE SOUZA",
+    "FERNANDA DIAS FERNANDES",
+    "Antonio Weverson Gomes dos Santos"
+  ],
+  "SE": [
+    "Secretaria-Executiva- SE",
+    "MARCOS GONZAGA DE LIMA",
+    "ANA CRISTINA SOUZA DA SILVA"
+  ],
+  "COR": [
+    "Corregedoria-COR",
+    "FABRIZIA DE LIMA",
+    "LUIZA DALVA RODRIGUES PAIVA"
+  ],
+  "CONJUR": [
+    "Consultoria Jurídica- CONJUR",
+    "AMANDA PRICILA ESTRELA BIZINOTO FELTRIM",
+    "THIAGO RAFAEL FAGUNDES"
+  ],
+  "AECI": [
+    "Assessoria Especial de Controle Interno- AECI",
+    "RUTH MARIANA LIMA CORDEIRO"
+  ],
+  "GM": [
+    "Gabinete do Ministro - GM",
+    "GISELE CUNHA NEVES",
+    "MAIARA ROSA DE SOUZA RIBEIRO"
+  ],
+  "CNE": [
+    "Conselho Nacional de Educação- CNE",
+    "DANIEL ARAGAO PARENTE VALENTIM",
+    "MARCELA ARAUJO BASILIO FRANCA PAVETITS",
+    "LUCIANA PEREIRA GOMES BORGES DE OLIVEIRA"
+  ],
+  "SEGAPE": [
+    "Secretaria de Gestão da Informação, Inovação e Avaliação de Políticas Educacionais (Segape)",
+    "Cláudia Rezende Medeiros Passsetto"
+  ]
 }

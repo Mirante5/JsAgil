@@ -2,6 +2,9 @@
     'use strict';
 
     window.addEventListener('load', async function () {
+        const SELECT_ID = 'justificativasBox';
+
+        // Elementos base
         const motivoProrrogacaoLabel = document.querySelector('label[for="ConteudoForm_ConteudoGeral_ConteudoFormComAjax_cmbMotivoProrrogacao"]');
         const justificativaInput = document.getElementById('ConteudoForm_ConteudoGeral_ConteudoFormComAjax_txtJustificativaProrrogacao');
 
@@ -10,12 +13,12 @@
             return;
         }
 
-        if (document.getElementById('justificativasBox')) {
+        if (document.getElementById(SELECT_ID)) {
             console.log('Dropdown já existe na página.');
             return;
         }
 
-        // Carrega texto do JSON
+        // Função para carregar JSON de configuração
         async function carregarConfig() {
             try {
                 const url = chrome.runtime.getURL('config/text.json');
@@ -27,46 +30,37 @@
             }
         }
 
-        const config = await carregarConfig();
-        const prorrogacoes = config?.Prorrogacao || {};
+        // Cria dropdown com justificativas
+        function criarDropdown(prorrogacoes) {
+            const label = document.createElement('label');
+            label.setAttribute('for', SELECT_ID);
+            label.textContent = 'Texto de Prorrogação:';
+            label.className = 'justificativas-label';
 
-        const labelJustificativa = document.createElement('label');
-        labelJustificativa.setAttribute('for', 'justificativasBox');
-        labelJustificativa.textContent = 'Texto de Prorrogação:';
-        labelJustificativa.className = 'justificativas-label';
+            const select = document.createElement('select');
+            select.id = SELECT_ID;
+            select.name = SELECT_ID;
+            select.className = 'justificativas-dropdown';
 
-        const justificativasBox = document.createElement('select');
-        justificativasBox.id = 'justificativasBox';
-        justificativasBox.name = 'justificativasBox';
-        justificativasBox.className = 'justificativas-dropdown';
+            const optDefault = document.createElement('option');
+            optDefault.value = '';
+            optDefault.textContent = 'Selecione uma justificativa...';
+            select.appendChild(optDefault);
 
-        // opções
-        const fragment = document.createDocumentFragment();
-        const optDefault = document.createElement('option');
-        optDefault.value = '';
-        optDefault.textContent = 'Selecione uma justificativa...';
-        fragment.appendChild(optDefault);
+            Object.entries(prorrogacoes).forEach(([titulo, texto]) => {
+                const opt = document.createElement('option');
+                opt.value = texto;
+                opt.textContent = titulo;
+                select.appendChild(opt);
+            });
 
-        Object.entries(prorrogacoes).forEach(([titulo, texto]) => {
-            const opt = document.createElement('option');
-            opt.value = texto;
-            opt.textContent = titulo;
-            fragment.appendChild(opt);
-        });
+            return { label, select };
+        }
 
-        justificativasBox.appendChild(fragment);
+        // Estilo customizado (uma vez só)
+        function aplicarEstiloDropdown() {
+            if (document.querySelector('.justificativas-styles')) return;
 
-        // Insere elementos
-        const parentNode = motivoProrrogacaoLabel.parentNode;
-        parentNode.appendChild(labelJustificativa);
-        parentNode.appendChild(justificativasBox);
-
-        justificativasBox.addEventListener('change', () => {
-            justificativaInput.value = justificativasBox.value || '';
-        });
-
-        // Estilo
-        if (!document.querySelector('.justificativas-styles')) {
             const style = document.createElement('style');
             style.className = 'justificativas-styles';
             style.textContent = `
@@ -85,6 +79,20 @@
             document.head.appendChild(style);
         }
 
+        // Insere elementos e lógica no DOM
+        const config = await carregarConfig();
+        const prorrogacoes = config?.Prorrogacao || {};
+
+        const { label, select } = criarDropdown(prorrogacoes);
+        const container = motivoProrrogacaoLabel.parentNode;
+        container.appendChild(label);
+        container.appendChild(select);
+
+        select.addEventListener('change', () => {
+            justificativaInput.value = select.value || '';
+        });
+
+        aplicarEstiloDropdown();
         console.log('Dropdown e label criados com sucesso no DOM.');
     });
 })();
